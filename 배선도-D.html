@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>에이전트 배선도 · 노선도형</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --orange: #FF5000;
+    --orange-text: #D04000;
+    --black: #000000;
+    --ink: #222222;
+    --ink-2: #4A4A4A;
+    --gray: #767676;
+    --gray-2: #A3A3A3;
+    --line-1: #D9D9D9;
+    --line-2: #EDEDED;
+    --zone: #F7F7F5;
+    --bg: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); }
+  body {
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 40px 40px; }
+  .tag { font-size: 12px; letter-spacing: .06em; color: var(--gray); margin: 0 0 22px; }
+  h1 { word-break: keep-all; text-wrap: balance; font-size: clamp(22px, 2.6vw, 30px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.3; color: var(--black); margin: 0; }
+  .sub { font-size: 16px; color: var(--ink-2); margin: 8px 0 20px; }
+  svg { display: block; width: 100%; height: auto; }
+  svg text { font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; font-variant-numeric: tabular-nums; }
+  .nm { font-size: 17px; font-weight: 700; fill: var(--ink); }
+  .nm-o { font-size: 17px; font-weight: 700; fill: var(--orange-text); }
+  .ds { font-size: 13px; font-weight: 400; fill: var(--gray); }
+  .tg { font-size: 13px; font-weight: 600; fill: var(--gray); letter-spacing: .08em; }
+  .lg { font-size: 14px; font-weight: 500; fill: var(--ink); }
+  .lg b, .lg .b { font-weight: 700; }
+  .zl { font-size: 13px; font-weight: 600; fill: var(--gray); letter-spacing: .08em; }
+  .ft { font-size: 14px; font-weight: 700; fill: var(--ink); }
+  .fm { font-size: 14px; font-weight: 400; fill: var(--ink-2); }
+  .vx { font-size: 13px; font-weight: 600; fill: var(--gray-2); }
+  .vx-o { font-size: 13px; font-weight: 700; fill: var(--orange-text); }
+  .vp { font-size: 13px; font-weight: 700; fill: var(--orange-text); }
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .wrap { padding: 0; }
+  }
+
+  /* 세부 설명 (도식 아래) */
+  .detail {
+    --d-ink: #222222; --d-ink2: #4A4A4A; --d-ink3: #767676;
+    --d-line: #D9D9D9; --d-line2: #EDEDED; --d-wash: #F7F7F5;
+    --d-orange: #FF5000; --d-orange-text: #D04000;
+    max-width: 1120px; margin: 72px auto 0; padding: 0 0 96px;
+    color: var(--d-ink); font-size: 15px; line-height: 1.65; word-break: keep-all;
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    font-variant-numeric: tabular-nums; text-align: left;
+  }
+  .detail .d-rule { height: 2px; background: var(--d-ink); position: relative; }
+  .detail .d-rule::before { content: ""; position: absolute; left: 0; top: 0; width: 72px; height: 2px; background: var(--d-orange); }
+  .detail .d-over { font-size: 13px; letter-spacing: .08em; color: var(--d-ink3); margin: 16px 0 0; }
+  .detail .d-block { margin-top: 56px; }
+  .detail .d-head { display: grid; grid-template-columns: 48px 1fr; align-items: baseline; margin-bottom: 20px; }
+  .detail .d-no { font-size: 13px; color: var(--d-ink3); }
+  .detail h2 { font-size: 21px; line-height: 1.4; font-weight: 700; letter-spacing: -.015em; margin: 0; color: var(--d-ink); text-wrap: balance; }
+  .detail .d-body { padding-left: 48px; }
+  .detail p { margin: 0 0 16px; max-width: 46em; color: var(--d-ink2); }
+  .detail .d-note { font-size: 13px; color: var(--d-ink3); margin: 14px 0 0; }
+  .detail .d-tbl { overflow-x: auto; }
+  .detail table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .detail th { text-align: left; font-weight: 600; font-size: 12px; color: var(--d-ink3); padding: 0 16px 9px 0; border-bottom: 1px solid var(--d-ink); white-space: nowrap; }
+  .detail td { padding: 11px 16px 11px 0; border-bottom: 1px solid var(--d-line2); vertical-align: top; color: var(--d-ink2); }
+  .detail tbody:first-child tr:first-child td { border-top: 1px solid var(--d-ink); }
+  .detail td:last-child, .detail th:last-child { padding-right: 0; }
+  .detail td.d-k { font-weight: 700; color: var(--d-ink); white-space: nowrap; }
+  .detail td.d-n { color: var(--d-ink3); width: 28px; }
+  .detail td.d-dim { color: var(--d-ink3); white-space: nowrap; font-size: 13px; }
+  .detail td.d-cmd { font-family: "JetBrains Mono", Consolas, monospace; font-size: 13px; color: var(--d-ink); white-space: nowrap; }
+  .detail tr.d-group td { padding-top: 22px; font-size: 12px; color: var(--d-ink3); border-bottom: 1px solid var(--d-line); letter-spacing: .02em; }
+  .detail tr.d-gate td { border-bottom-color: var(--d-orange); }
+  .detail tr.d-gate td.d-k { color: var(--d-orange-text); }
+  .detail .d-list { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 10px; }
+  .detail .d-list li { padding-left: 16px; position: relative; color: var(--d-ink2); max-width: 50em; }
+  .detail .d-list li::before { content: ""; position: absolute; left: 0; top: .72em; width: 6px; height: 1px; background: var(--d-ink3); }
+  .detail .d-list b { color: var(--d-ink); font-weight: 700; }
+  .detail .d-ladder { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--d-ink); margin: 0 0 24px; background: #fff; }
+  .detail .d-ladder > div { padding: 14px 14px 16px; border-right: 1px solid var(--d-line); }
+  .detail .d-ladder > div:nth-child(4) { border-bottom: 3px solid var(--d-orange); padding-bottom: 13px; }
+  .detail .d-ladder > div:last-child { border-right: 0; background: var(--d-ink); }
+  .detail .d-ladder .t { font-weight: 700; display: block; color: var(--d-ink); }
+  .detail .d-ladder .d { font-size: 13px; color: var(--d-ink3); display: block; margin-top: 4px; line-height: 1.5; }
+  .detail .d-ladder > div:last-child .t { color: #fff; }
+  .detail .d-ladder > div:last-child .d { color: #D9D9D9; }
+  .detail .d-two { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  @media (max-width: 860px) {
+    .detail { margin-top: 48px; }
+    .detail .d-head { grid-template-columns: 32px 1fr; }
+    .detail .d-body { padding-left: 0; }
+    .detail .d-ladder { grid-template-columns: 1fr; }
+    .detail .d-ladder > div { border-right: 0; border-bottom: 1px solid var(--d-line); }
+    .detail .d-two { grid-template-columns: 1fr; gap: 0; }
+  }
+  @media print { .detail .d-block { break-inside: avoid-page; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="tag">배선도 · 노선도형</p>
+  <h1>기준을 주면, 보고가 돌 때마다 시스템이 스스로 정교해진다</h1>
+  <p class="sub">세컨드브레인 자가피드백 시스템 · 에이전트 배선도</p>
+
+  <svg viewBox="0 0 1200 740" role="img" aria-label="에이전트 배선도 노선도">
+    <defs>
+      <marker id="a-ink" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="12" refX="2" refY="6" orient="auto">
+        <path d="M0,0 L10,6 L0,12 z" fill="#222222"/>
+      </marker>
+      <marker id="a-org" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="12" refX="2" refY="6" orient="auto">
+        <path d="M0,0 L10,6 L0,12 z" fill="#FF5000"/>
+      </marker>
+      <marker id="a-gry" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="12" refX="2" refY="6" orient="auto">
+        <path d="M0,0 L10,6 L0,12 z" fill="#767676"/>
+      </marker>
+      <marker id="a-thin" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="7" refX="0" refY="3.5" orient="auto">
+        <path d="M0,0 L7,3.5 L0,7 z" fill="#222222"/>
+      </marker>
+    </defs>
+
+    <!-- 요금 구역: 경량 온톨로지 전 구간 적용 -->
+    <rect x="40" y="40" width="1120" height="640" fill="var(--zone)"/>
+    <text class="zl" x="1136" y="662" text-anchor="end">전 구간 적용</text>
+
+    <!-- 범례: 루프 이름 -->
+    <line x1="64" y1="67" x2="92" y2="67" stroke="var(--ink)" stroke-width="6"/>
+    <text class="lg" x="104" y="72"><tspan class="b" font-weight="700">실행 루프</tspan> · 보고서 한 건을 고친다</text>
+    <line x1="64" y1="93" x2="92" y2="93" stroke="var(--orange)" stroke-width="6"/>
+    <text class="lg" x="104" y="98"><tspan font-weight="700">학습 루프</tspan> · 기준 자체를 고친다</text>
+
+    <!-- 구축 지선 (회색): 수집 → 경량 온톨로지 → 세컨드브레인 -->
+    <path d="M121 630 H361" fill="none" stroke="var(--gray)" stroke-width="4" marker-end="url(#a-gry)"/>
+    <path d="M380 619 V514" fill="none" stroke="var(--gray)" stroke-width="4" marker-end="url(#a-gry)"/>
+
+    <!-- 기준 제공: 세컨드브레인 → 2 자가 평가 -->
+    <path d="M380 474 V188" fill="none" stroke="var(--ink)" stroke-width="1" stroke-dasharray="4 4" marker-end="url(#a-thin)"/>
+
+    <!-- 실행선 (차콜): 1 → 2 → 3 → 4 -->
+    <path d="M171 190 H361" fill="none" stroke="var(--ink)" stroke-width="6" marker-end="url(#a-ink)"/>
+    <path d="M391 190 H581" fill="none" stroke="var(--ink)" stroke-width="6" marker-end="url(#a-ink)"/>
+    <path d="M611 190 H816" fill="none" stroke="var(--ink)" stroke-width="6" marker-end="url(#a-ink)"/>
+
+    <!-- 학습선 (오렌지): 4 → 5 → 6 → 7 → 8 → 세컨드브레인 -->
+    <path d="M856 190 H1000 A40 40 0 0 1 1040 230 V321" fill="none" stroke="var(--orange)" stroke-width="6" marker-end="url(#a-org)"/>
+    <path d="M1040 351 V450 A40 40 0 0 1 1000 490 H919" fill="none" stroke="var(--orange)" stroke-width="6" marker-end="url(#a-org)"/>
+    <path d="M889 490 H739" fill="none" stroke="var(--orange)" stroke-width="6" marker-end="url(#a-org)"/>
+    <path d="M709 490 H559" fill="none" stroke="var(--orange)" stroke-width="6" marker-end="url(#a-org)"/>
+    <path d="M529 490 H404" fill="none" stroke="var(--orange)" stroke-width="6" marker-end="url(#a-org)"/>
+    <text class="vp" x="466" y="476" text-anchor="middle">기준 v+1</text>
+
+    <!-- 역: 실행선 -->
+    <circle cx="160" cy="190" r="9" fill="#FFFFFF" stroke="var(--ink)" stroke-width="4"/>
+    <circle cx="380" cy="190" r="9" fill="#FFFFFF" stroke="var(--ink)" stroke-width="4"/>
+    <circle cx="600" cy="190" r="9" fill="#FFFFFF" stroke="var(--ink)" stroke-width="4"/>
+    <!-- 환승역 4 -->
+    <circle cx="840" cy="190" r="14" fill="#FFFFFF" stroke="var(--ink)" stroke-width="4"/>
+
+    <!-- 역: 학습선 -->
+    <circle cx="1040" cy="340" r="9" fill="#FFFFFF" stroke="var(--orange)" stroke-width="4"/>
+    <circle cx="900" cy="490" r="9" fill="#FFFFFF" stroke="var(--orange)" stroke-width="4"/>
+    <circle cx="720" cy="490" r="9" fill="#FFFFFF" stroke="var(--orange)" stroke-width="4"/>
+    <circle cx="540" cy="490" r="9" fill="var(--orange)" stroke="var(--orange)" stroke-width="4"/>
+    <!-- 환승역 세컨드브레인 -->
+    <circle cx="380" cy="490" r="14" fill="#FFFFFF" stroke="var(--ink)" stroke-width="4"/>
+
+    <!-- 역: 구축 지선 -->
+    <circle cx="110" cy="630" r="9" fill="#FFFFFF" stroke="var(--gray)" stroke-width="4"/>
+    <circle cx="380" cy="630" r="9" fill="#FFFFFF" stroke="var(--gray)" stroke-width="4"/>
+
+    <!-- 라벨: 실행선 (위) -->
+    <text class="nm" x="160" y="148" text-anchor="middle">1 초안 입력</text>
+    <text class="ds" x="160" y="168" text-anchor="middle">직원이 보고서 초안을 넣는다</text>
+    <text class="nm" x="380" y="148" text-anchor="middle">2 자가 평가</text>
+    <text class="ds" x="380" y="168" text-anchor="middle">기준에 비춰 점검한다</text>
+    <text class="nm" x="600" y="148" text-anchor="middle">3 1장 리포트</text>
+    <text class="ds" x="600" y="168" text-anchor="middle">판정과 수정할 것 3건</text>
+    <text class="nm" x="840" y="148" text-anchor="middle">4 1차 보고</text>
+    <text class="ds" x="840" y="168" text-anchor="middle">고쳐서 보고한다</text>
+
+    <!-- 라벨: 학습선 -->
+    <text class="nm" x="1020" y="335" text-anchor="end">5 실측 기록</text>
+    <text class="ds" x="1020" y="355" text-anchor="end">실제 피드백과 사전 평가를 대조한다</text>
+    <text class="nm" x="900" y="528" text-anchor="middle">6 패턴 축적</text>
+    <text class="ds" x="900" y="548" text-anchor="middle">반복되는 차이를 모은다</text>
+    <text class="nm" x="720" y="444" text-anchor="middle">7 기준 제안</text>
+    <text class="ds" x="720" y="464" text-anchor="middle">근거를 붙여 변경안을 올린다</text>
+    <text class="nm-o" x="540" y="528" text-anchor="middle">8 최종 승인</text>
+    <text class="ds" x="540" y="548" text-anchor="middle">주 1회, 승인한 것만 기준이 된다</text>
+
+    <!-- 라벨: 세컨드브레인 (좌) + 기준 누적 -->
+    <text class="tg" x="352" y="456" text-anchor="end">기준</text>
+    <text class="nm" x="352" y="482" text-anchor="end">세컨드브레인</text>
+    <text class="ds" x="352" y="504" text-anchor="end">평가기준 · 내부기준</text>
+    <text class="vx" x="294" y="530" text-anchor="middle">v1</text>
+    <text class="vx" x="318" y="530" text-anchor="middle">v2</text>
+    <text class="vx-o" x="342" y="530" text-anchor="middle">v3</text>
+    <line x1="286" y1="538" x2="302" y2="538" stroke="var(--line-1)" stroke-width="2"/>
+    <line x1="310" y1="538" x2="326" y2="538" stroke="var(--gray-2)" stroke-width="2"/>
+    <line x1="334" y1="538" x2="350" y2="538" stroke="var(--orange)" stroke-width="2"/>
+
+    <!-- 라벨: 수집 (위) -->
+    <text class="tg" x="98" y="568">원천</text>
+    <text class="nm" x="98" y="590">수집</text>
+    <text class="ds" x="98" y="610">인터뷰 · 기존 문서 · 과거 피드백</text>
+
+    <!-- 라벨: 경량 온톨로지 (우) -->
+    <text class="tg" x="402" y="610">전역규칙</text>
+    <text class="nm" x="402" y="632">경량 온톨로지</text>
+    <text class="ds" x="402" y="652">용어 · 타입 · 표기를 하나로 (비즈니스 인텔리전스 × 브랜드 아이덴티티)</text>
+
+    <!-- 하단 지표 -->
+    <line x1="40" y1="696" x2="1160" y2="696" stroke="var(--line-1)" stroke-width="1"/>
+    <text x="40" y="724"><tspan class="ft">돌릴수록 좋아지는지 보는 지표</tspan><tspan class="fm" dx="24">판정 일치율</tspan><tspan class="fm" fill="#A3A3A3" dx="10">·</tspan><tspan class="fm" dx="10">사전 포착률</tspan><tspan class="fm" fill="#A3A3A3" dx="10">·</tspan><tspan class="fm" dx="10">1차 보고 통과율</tspan><tspan class="fm" fill="#A3A3A3" dx="10">·</tspan><tspan class="fm" dx="10">제안 채택률</tspan></text>
+  </svg>
+<section class="detail">
+  <div class="d-rule"></div>
+  <p class="d-over">세부 설명</p>
+
+  <div class="d-block">
+    <div class="d-head"><span class="d-no">01</span><h2>경량 온톨로지: 모든 에이전트가 따르는 용어와 표기의 약속</h2></div>
+    <div class="d-body">
+      <p>무엇이 있고 어떻게 부르는지만 정한다. 무엇이 좋은지는 세컨드브레인이 정한다. 타입은 일곱 개로 묶고, 숫자를 다루는 축과 표현을 다루는 축을 한 곳에 둔다.</p>
+      <div class="d-tbl"><table>
+        <thead><tr><th>축</th><th>타입</th><th>담는 것</th><th>예</th></tr></thead>
+        <tbody>
+          <tr><td class="d-dim">공통</td><td class="d-k">용어</td><td>정식 명칭과 동의어</td><td>정식어는 하나, 나머지는 대체어 또는 금지어</td></tr>
+          <tr><td class="d-dim">비즈니스 인텔리전스</td><td class="d-k">지표</td><td>정의, 산식, 단위, 집계 주기</td><td>매출총이익률</td></tr>
+          <tr><td class="d-dim">비즈니스 인텔리전스</td><td class="d-k">사업 대상</td><td>지표가 재는 대상</td><td>고객, 프로젝트</td></tr>
+          <tr><td class="d-dim">브랜드 아이덴티티</td><td class="d-k">표기</td><td>단위, 소수점, 통화 표기</td><td>억 원 단위, 소수 첫째 자리</td></tr>
+          <tr><td class="d-dim">브랜드 아이덴티티</td><td class="d-k">톤</td><td>문체 규칙과 좋은 예, 나쁜 예</td><td>보고서 문체, 대외 문체</td></tr>
+          <tr><td class="d-dim">브랜드 아이덴티티</td><td class="d-k">시각 토큰</td><td>색, 서체</td><td>키컬러 #FF5000</td></tr>
+          <tr><td class="d-dim">공통</td><td class="d-k">규칙</td><td>금지어, 필수 표기</td><td>흰 바탕의 작은 오렌지 글씨는 #D04000</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="d-list">
+        <li><b>항상 읽는 것과 필요할 때 읽는 것을 나눈다.</b> 전역규칙 파일에는 타입 목록, 이름 짓는 규칙, 금지어만 둔다. 상세 정의와 예문은 위키 본문에 두고 필요할 때 읽는다.</li>
+        <li><b>두 축은 두 곳에서 만난다.</b> 지표와 표기(같은 숫자는 항상 같은 단위로 쓴다), 용어와 규칙(정식어는 하나만 쓴다).</li>
+        <li><b>값 판단은 넣지 않는다.</b> "얼마 이상이어야 좋다"는 온톨로지에 적지 않고 세컨드브레인에 적는다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="d-block">
+    <div class="d-head"><span class="d-no">02</span><h2>세컨드브레인: 평가기준과 내부기준을 근거와 함께 보관한다</h2></div>
+    <div class="d-body">
+      <div class="d-tbl"><table>
+        <thead><tr><th>항목</th><th>담는 것</th></tr></thead>
+        <tbody>
+          <tr><td class="d-k">원칙</td><td>판단의 바탕이 되는 상위 생각</td></tr>
+          <tr><td class="d-k">평가기준</td><td>"이러면 이렇게 판정한다" 형식의 점검 문장</td></tr>
+          <tr><td class="d-k">내부기준</td><td>조직 고유의 수치, 문턱값, 관행</td></tr>
+          <tr><td class="d-k">선호 표현 · 금기</td><td>선호하는 표현과 보는 순간 신뢰가 깨지는 표현</td></tr>
+          <tr><td class="d-k">모범 사례 · 반례</td><td>통과한 보고서와 다시 쓴 보고서</td></tr>
+          <tr><td class="d-k">과거 피드백</td><td>실제로 남긴 피드백 원문</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="d-list">
+        <li><b>원문과 해석을 나눈다.</b> 근거가 된 말은 그대로 인용하고, 해석은 따로 적는다.</li>
+        <li><b>근거가 한 건뿐이면 가설이다.</b> 확인받은 것만 정식 기준이 된다.</li>
+        <li><b>말보다 행동을 우선한다.</b> 인터뷰에서 한 말과 실제 피드백이 다르면 실제 피드백을 따르고 확인을 요청한다.</li>
+        <li><b>점검표는 두 층이다.</b> 공통 여섯 축(결론, 논리, 근거와 숫자, 대안, 리스크와 다음 단계, 전달 형식) 위에 고유 기준을 덧씌운다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="d-block">
+    <div class="d-head"><span class="d-no">03</span><h2>두 고리: 단계마다 무엇이 들어가고 무엇이 나오나</h2></div>
+    <div class="d-body">
+      <div class="d-tbl"><table>
+        <thead><tr><th></th><th>단계</th><th>들어가는 것</th><th>나오는 것</th><th>맡는 쪽</th><th>명령</th></tr></thead>
+        <tbody>
+          <tr class="d-group"><td colspan="6">실행 루프 · 보고서 한 건을 고친다</td></tr>
+          <tr><td class="d-n">1</td><td class="d-k">초안 입력</td><td>보고서 초안</td><td>정리된 초안</td><td>직원</td><td class="d-cmd">/check</td></tr>
+          <tr><td class="d-n">2</td><td class="d-k">자가 평가</td><td>초안, 기준, 비슷한 과거 사례</td><td>원문 인용과 기준 번호가 붙은 지적</td><td>평가 에이전트</td><td class="d-cmd">/check</td></tr>
+          <tr><td class="d-n">3</td><td class="d-k">1장 리포트</td><td>지적</td><td>판정 한 줄, 고칠 것 3건</td><td>평가 에이전트</td><td class="d-cmd">/check</td></tr>
+          <tr><td class="d-n">4</td><td class="d-k">1차 보고</td><td>고친 보고서</td><td>실제 피드백</td><td>직원</td><td class="d-cmd"></td></tr>
+          <tr class="d-group"><td colspan="6">학습 루프 · 기준 자체를 고친다</td></tr>
+          <tr><td class="d-n">5</td><td class="d-k">실측 기록</td><td>실제 피드백</td><td>사전 평가와 나란히 적은 대조 기록</td><td>기록 에이전트</td><td class="d-cmd">/record</td></tr>
+          <tr><td class="d-n">6</td><td class="d-k">패턴 축적</td><td>대조 기록</td><td>반복되는 차이와 횟수</td><td>분석 에이전트</td><td class="d-cmd">/propose</td></tr>
+          <tr><td class="d-n">7</td><td class="d-k">기준 제안</td><td>패턴</td><td>변경안 카드(바꿀 내용, 근거 사례, 영향)</td><td>제안 에이전트</td><td class="d-cmd">/propose</td></tr>
+          <tr class="d-gate"><td class="d-n">8</td><td class="d-k">최종 승인</td><td>변경안 카드</td><td>기준 새 버전, 반려 기록</td><td>승인권자</td><td class="d-cmd">/approve</td></tr>
+        </tbody>
+      </table></div>
+      <p class="d-note">에이전트는 기준 파일을 읽기만 한다. 기준 파일에 쓰는 것은 8번뿐이다.</p>
+    </div>
+  </div>
+
+  <div class="d-block">
+    <div class="d-head"><span class="d-no">04</span><h2>쌓이는 길은 하나, 문도 하나</h2></div>
+    <div class="d-body">
+      <div class="d-ladder">
+        <div><span class="t">로그</span><span class="d">평가와 실제 피드백을 그대로 적는다. 지우지 않는다</span></div>
+        <div><span class="t">패턴</span><span class="d">서로 다른 보고에서 같은 차이가 반복될 때만 올린다</span></div>
+        <div><span class="t">제안</span><span class="d">바꿀 내용 한 줄, 근거 사례, 바꿨을 때의 영향</span></div>
+        <div><span class="t">승인</span><span class="d">주 1회 묶어서 승인, 반려, 보류</span></div>
+        <div><span class="t">기준</span><span class="d">버전을 올리고 이전 버전은 남겨 둔다</span></div>
+      </div>
+      <div class="d-tbl"><table>
+        <thead><tr><th>구분</th><th>대상</th><th>방식</th></tr></thead>
+        <tbody>
+          <tr><td class="d-k">자동</td><td>보고서 사례, 평가 로그, 대조 기록, 패턴 횟수</td><td>명령을 돌릴 때마다 기록</td></tr>
+          <tr><td class="d-k">사후 확인</td><td>용어 추가, 모범 사례 등록</td><td>먼저 반영하고 주간 목록으로 확인</td></tr>
+          <tr class="d-gate"><td class="d-k">사전 승인</td><td>기준 문구, 가중치, 문턱값</td><td>변경안 카드로 올리고 승인된 것만 반영</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="d-two">
+    <div class="d-block">
+      <div class="d-head"><span class="d-no">05</span><h2>좋아지는지 보는 지표</h2></div>
+      <div class="d-body">
+        <div class="d-tbl"><table>
+          <tbody>
+            <tr><td class="d-k">판정 일치율</td><td>사전 판정과 실제 판정이 같았던 비율</td></tr>
+            <tr><td class="d-k">사전 포착률</td><td>실제로 지적된 것 중 미리 짚은 비율</td></tr>
+            <tr><td class="d-k">1차 보고 통과율</td><td>재작성 없이 넘어간 비율</td></tr>
+            <tr><td class="d-k">제안 채택률</td><td>올린 변경안 중 승인된 비율</td></tr>
+          </tbody>
+        </table></div>
+        <p class="d-note">목표 수치는 도입 전 4주 동안 지금 수준을 먼저 잰 뒤에 정한다.</p>
+      </div>
+    </div>
+    <div class="d-block">
+      <div class="d-head"><span class="d-no">06</span><h2>명령 여섯 개</h2></div>
+      <div class="d-body">
+        <div class="d-tbl"><table>
+          <tbody>
+            <tr><td class="d-cmd">/check</td><td class="d-dim">직원</td><td>초안을 점검하고 1장 리포트를 만든다</td></tr>
+            <tr><td class="d-cmd">/record</td><td class="d-dim">직원</td><td>실제로 받은 피드백을 적는다</td></tr>
+            <tr><td class="d-cmd">/ingest</td><td class="d-dim">관리자</td><td>인터뷰와 문서를 읽어 위키와 기준 초안을 만든다</td></tr>
+            <tr><td class="d-cmd">/propose</td><td class="d-dim">관리자</td><td>반복되는 차이를 모아 변경안을 만든다</td></tr>
+            <tr><td class="d-cmd">/approve</td><td class="d-dim">승인권자</td><td>변경안을 승인하거나 반려하고 버전을 올린다</td></tr>
+            <tr><td class="d-cmd">/lint</td><td class="d-dim">관리자</td><td>끊어진 링크, 미등록 용어, 낡은 페이지를 찾는다</td></tr>
+          </tbody>
+        </table></div>
+        <p class="d-note">직원이 쓰는 명령은 위의 두 개뿐이다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+</body>
+</html>

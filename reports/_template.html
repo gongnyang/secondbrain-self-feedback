@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>자가 점검 리포트 · {{보고서 제목}}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<!--
+  채우는 법 (/check 가 쓴다)
+  - {{ }} 자리를 실제 내용으로 바꾼다
+  - "반복" 주석이 붙은 덩어리는 건수만큼 복사한다. 고칠 것은 3건까지
+  - 등급 칸의 class 는 pass / fix / redo 중 하나
+  - 색, 글꼴, 구조는 바꾸지 않는다
+-->
+<style>
+  :root {
+    --ink: #222222; --ink-2: #4A4A4A; --ink-3: #767676;
+    --line: #D9D9D9; --line-2: #EDEDED; --wash: #F7F7F5;
+    --orange: #FF5000; --orange-text: #D04000;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #fff; color: var(--ink);
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    font-size: 15px; line-height: 1.6; font-variant-numeric: tabular-nums; word-break: keep-all;
+  }
+  .page { max-width: 920px; margin: 0 auto; padding: 56px 32px 64px; }
+  .over { font-size: 12px; letter-spacing: .06em; color: var(--ink-3); margin: 0 0 14px; }
+  h1 { font-size: 28px; line-height: 1.3; font-weight: 700; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+  .rule { height: 2px; background: var(--ink); margin-top: 24px; position: relative; }
+  .rule::before { content: ""; position: absolute; left: 0; top: 0; width: 72px; height: 2px; background: var(--orange); }
+
+  .verdict { display: grid; grid-template-columns: 148px 1fr; gap: 24px; align-items: baseline; padding: 24px 0; border-bottom: 1px solid var(--line); }
+  .verdict .grade { font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+  .verdict .line { font-size: 18px; font-weight: 600; margin: 0; }
+  .verdict .sub { font-size: 13px; color: var(--ink-3); margin: 4px 0 0; }
+
+  h2 { font-size: 13px; font-weight: 600; color: var(--ink-3); letter-spacing: .04em; margin: 36px 0 0; padding-bottom: 9px; border-bottom: 1px solid var(--ink); }
+
+  .fixes { list-style: none; margin: 0; padding: 0; counter-reset: f; }
+  .fixes li { counter-increment: f; display: grid; grid-template-columns: 36px 1fr; padding: 16px 0; border-bottom: 1px solid var(--line-2); }
+  .fixes li::before { content: counter(f); font-size: 20px; font-weight: 700; color: var(--orange-text); line-height: 1.2; }
+  .fixes .what { font-weight: 700; margin: 0 0 6px; font-size: 16px; }
+  .fixes blockquote { margin: 0 0 6px; padding: 0 0 0 12px; border-left: 2px solid var(--line); color: var(--ink-2); }
+  .fixes .to { margin: 0; color: var(--ink); }
+  .fixes .to::before { content: "고치면 "; color: var(--ink-3); font-size: 13px; }
+  .fixes .ref { font-size: 12px; color: var(--ink-3); margin: 6px 0 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  td { padding: 10px 16px 10px 0; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+  td:last-child { padding-right: 0; color: var(--ink-2); }
+  td.axis { font-weight: 600; white-space: nowrap; width: 168px; }
+  td.g { white-space: nowrap; width: 76px; font-weight: 600; }
+  td.g.pass { color: var(--ink-3); font-weight: 400; }
+  td.g.fix { color: var(--ink); }
+  td.g.redo { color: var(--orange-text); }
+
+  .next { margin: 0; padding: 0; list-style: none; }
+  .next li { padding: 10px 0; border-bottom: 1px solid var(--line-2); display: grid; grid-template-columns: 1fr auto; gap: 24px; }
+  .next .when { color: var(--ink-3); font-size: 13px; white-space: nowrap; }
+
+  .foot { margin-top: 32px; font-size: 12px; color: var(--ink-3); }
+
+  @media (max-width: 640px) {
+    .page { padding: 32px 16px 48px; }
+    h1 { font-size: 22px; }
+    .verdict { grid-template-columns: 1fr; gap: 6px; }
+    td.axis { width: auto; white-space: normal; }
+  }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { padding: 0; max-width: none; }
+    @page { size: A4; margin: 16mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="over">자가 점검 리포트 · {{보고유형}} · {{날짜}} · 기준 {{기준 버전}}</p>
+  <h1>{{보고서 제목}}</h1>
+  <div class="rule"></div>
+
+  <div class="verdict">
+    <div class="grade">{{판정}}</div>
+    <div>
+      <p class="line">{{판정 한 줄}}</p>
+      <p class="sub">{{판정 근거 한 줄}}</p>
+    </div>
+  </div>
+
+  <h2>고칠 것</h2>
+  <ol class="fixes">
+    <!-- 반복: 고칠 것 (영향 큰 순서, 3건까지) -->
+    <li>
+      <div>
+        <p class="what">{{고칠 것 한 줄}}</p>
+        <blockquote>{{보고서 원문 인용}}</blockquote>
+        <p class="to">{{수정 예시 한 문장}}</p>
+        <p class="ref">{{기준 id 또는 점검표 축}} · {{보고서 위치}}</p>
+      </div>
+    </li>
+    <!-- 반복 끝 -->
+  </ol>
+
+  <h2>축별 점검</h2>
+  <table>
+    <tbody>
+      <tr><td class="axis">1. 결론 먼저</td><td class="g {{등급 class}}">{{등급}}</td><td>{{이유 한 줄}}</td></tr>
+      <tr><td class="axis">2. 논리 구조</td><td class="g {{등급 class}}">{{등급}}</td><td>{{이유 한 줄}}</td></tr>
+      <tr><td class="axis">3. 근거와 숫자</td><td class="g {{등급 class}}">{{등급}}</td><td>{{이유 한 줄}}</td></tr>
+      <tr><td class="axis">4. 대안 비교</td><td class="g {{등급 class}}">{{등급}}</td><td>{{이유 한 줄}}</td></tr>
+      <tr><td class="axis">5. 리스크와 다음 단계</td><td class="g {{등급 class}}">{{등급}}</td><td>{{이유 한 줄}}</td></tr>
+      <tr><td class="axis">6. 전달 형식</td><td class="g {{등급 class}}">{{등급}}</td><td>{{이유 한 줄}}</td></tr>
+    </tbody>
+  </table>
+
+  <h2>다음 행동</h2>
+  <ul class="next">
+    <!-- 반복: 다음 행동 (3건까지) -->
+    <li><span>{{할 일}}</span><span class="when">{{언제까지}}</span></li>
+    <!-- 반복 끝 -->
+  </ul>
+
+  <p class="foot">사전 점검이며 실제 판정을 대신하지 않는다. 모든 지적에는 보고서 원문과 기준 번호가 붙어 있다. 참고로만 쓴 가설 기준: {{가설 기준 id 목록 또는 "없음"}}</p>
+
+</div>
+</body>
+</html>

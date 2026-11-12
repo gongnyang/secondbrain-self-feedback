@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>배선도 시안 A</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --orange: #FF5000;
+    --orange-text: #D04000;
+    --ink: #000000;
+    --charcoal: #222222;
+    --g1: #4A4A4A;
+    --g2: #767676;
+    --g3: #A3A3A3;
+    --g4: #D9D9D9;
+    --g5: #EDEDED;
+    --paper: #F7F7F5;
+    --bg: #FFFFFF;
+    --font: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+  body {
+    font-family: var(--font);
+    color: var(--charcoal);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    position: relative;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 64px 0 40px;
+  }
+  .badge {
+    position: absolute;
+    top: 18px;
+    left: 3%;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--g2);
+    letter-spacing: 0.01em;
+  }
+  header { padding: 0 3%; }
+  .subtitle {
+    margin: 0 0 10px;
+    font-size: clamp(13px, 1.25vw, 16px);
+    font-weight: 500;
+    color: var(--g1);
+    letter-spacing: -0.005em;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(22px, 2.7vw, 34px);
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    word-break: keep-all;
+  }
+  .rule {
+    height: 0;
+    border: 0;
+    border-top: 1px solid var(--charcoal);
+    margin: 22px 0 0;
+  }
+  figure { margin: 28px 0 0; }
+  svg { display: block; width: 100%; height: auto; }
+
+  svg text { font-family: var(--font); font-variant-numeric: tabular-nums; }
+  .box      { fill: var(--bg); stroke: var(--charcoal); stroke-width: 1; }
+  .box-s    { fill: var(--paper); stroke: var(--charcoal); stroke-width: 1; }
+  .box-hot  { fill: var(--bg); stroke: var(--orange); stroke-width: 2; }
+  .ln       { fill: none; stroke: var(--charcoal); stroke-width: 1; stroke-linejoin: miter; }
+  .ln-hot   { fill: none; stroke: var(--orange); stroke-width: 2; stroke-linejoin: miter; }
+  .head     { fill: var(--charcoal); }
+  .head-hot { fill: var(--orange); }
+  .t-num    { font-size: 13px; font-weight: 700; fill: var(--charcoal); }
+  .t-num-hot{ font-size: 13px; font-weight: 700; fill: var(--orange-text); }
+  .t-tag    { font-size: 13px; font-weight: 500; fill: var(--g2); }
+  .t-name   { font-size: 17px; font-weight: 700; fill: var(--ink); letter-spacing: -0.01em; }
+  .t-desc   { font-size: 13px; font-weight: 400; fill: var(--g2); letter-spacing: -0.01em; }
+  .t-loop   { font-size: 15px; font-weight: 700; fill: var(--ink); letter-spacing: -0.01em; }
+  .t-loop-s { font-weight: 400; fill: var(--g1); }
+  .t-flag   { font-size: 13px; font-weight: 700; fill: var(--orange-text); }
+  .t-span   { font-size: 14px; font-weight: 700; fill: var(--charcoal); }
+  .chip     { fill: var(--bg); stroke: var(--g3); stroke-width: 1; }
+  .chip-hot { fill: var(--bg); stroke: var(--orange); stroke-width: 1; }
+  .t-chip   { font-size: 13px; font-weight: 500; fill: var(--g2); }
+  .t-chip-hot { font-size: 13px; font-weight: 700; fill: var(--orange-text); }
+  .hair     { stroke: var(--g4); stroke-width: 1; }
+  .t-kpi-h  { font-size: 14px; font-weight: 700; fill: var(--charcoal); }
+  .t-kpi    { font-size: 14px; font-weight: 400; fill: var(--g1); }
+  .t-dot    { fill: var(--g3); }
+
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    html, body { background: var(--bg); }
+    .page { padding-top: 40px; }
+    @page { size: landscape; margin: 12mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="badge">시안 A · 보드룸 화이트</div>
+
+  <header>
+    <p class="subtitle">세컨드브레인 자가피드백 시스템 · 에이전트 배선도</p>
+    <h1>기준을 주면, 보고가 돌 때마다 시스템이 스스로 정교해진다</h1>
+    <hr class="rule">
+  </header>
+
+  <figure>
+    <svg viewBox="0 0 1200 640" role="img" aria-label="세컨드브레인 자가피드백 시스템 에이전트 배선도">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" class="head"/>
+        </marker>
+        <marker id="ah-hot" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" class="head-hot"/>
+        </marker>
+      </defs>
+
+      <!-- ===== 연결선 (노드 아래 레이어) ===== -->
+      <!-- 실행: 1 → 2 → 3 → 4 -->
+      <path class="ln" d="M272,66 H344" marker-end="url(#ah)"/>
+      <path class="ln" d="M580,66 H620" marker-end="url(#ah)"/>
+      <path class="ln" d="M856,66 H896" marker-end="url(#ah)"/>
+      <!-- 기준 제공: 세컨드브레인 → 2 -->
+      <path class="ln" d="M154,184 V146 H462 V108" marker-end="url(#ah)"/>
+      <!-- 구축: 수집 → 경량 온톨로지 → 세컨드브레인 -->
+      <path class="ln" d="M154,436 V480" marker-end="url(#ah)"/>
+      <path class="ln" d="M308,480 V310 H240 V268" marker-end="url(#ah)"/>
+      <!-- 학습: 4 → 5 → 6 → 7 → 8 → 세컨드브레인 -->
+      <path class="ln-hot" d="M1030,108 V352" marker-end="url(#ah-hot)"/>
+      <path class="ln-hot" d="M896,394 H856" marker-end="url(#ah-hot)"/>
+      <path class="ln-hot" d="M620,394 H580" marker-end="url(#ah-hot)"/>
+      <path class="ln-hot" d="M462,352 V268" marker-end="url(#ah-hot)"/>
+      <path class="ln-hot" d="M344,226 H272" marker-end="url(#ah-hot)"/>
+      <text class="t-flag" x="308" y="216" text-anchor="middle">기준 v+1</text>
+
+      <!-- ===== 루프 이름 ===== -->
+      <text class="t-loop" x="620" y="152">실행 루프<tspan class="t-loop-s"> · 보고서 한 건을 고친다</tspan></text>
+      <text class="t-loop" x="620" y="330">학습 루프<tspan class="t-loop-s"> · 기준 자체를 고친다</tspan></text>
+
+      <!-- ===== 실행 루프 (상단 행) ===== -->
+      <rect class="box" x="36" y="24" width="236" height="84" rx="1"/>
+      <text class="t-num" x="52" y="48">1</text>
+      <text class="t-name" x="52" y="73">초안 입력</text>
+      <text class="t-desc" x="52" y="94">직원이 보고서 초안을 넣는다</text>
+
+      <rect class="box" x="344" y="24" width="236" height="84" rx="1"/>
+      <text class="t-num" x="360" y="48">2</text>
+      <text class="t-name" x="360" y="73">자가 평가</text>
+      <text class="t-desc" x="360" y="94">기준에 비춰 점검한다</text>
+
+      <rect class="box" x="620" y="24" width="236" height="84" rx="1"/>
+      <text class="t-num" x="636" y="48">3</text>
+      <text class="t-name" x="636" y="73">1장 리포트</text>
+      <text class="t-desc" x="636" y="94">판정과 수정할 것 3건</text>
+
+      <rect class="box" x="896" y="24" width="268" height="84" rx="1"/>
+      <text class="t-num" x="912" y="48">4</text>
+      <text class="t-name" x="912" y="73">1차 보고</text>
+      <text class="t-desc" x="912" y="94">고쳐서 보고한다</text>
+
+      <!-- ===== 중단 행: 세컨드브레인 · 8 ===== -->
+      <rect class="box-s" x="36" y="184" width="236" height="84" rx="1"/>
+      <text class="t-tag" x="52" y="208">기준</text>
+      <text class="t-name" x="52" y="233">세컨드브레인</text>
+      <text class="t-desc" x="52" y="254">평가기준 · 내부기준</text>
+      <rect class="chip" x="166" y="194" width="28" height="18" rx="1"/>
+      <text class="t-chip" x="180" y="207.5" text-anchor="middle">v1</text>
+      <rect class="chip" x="198" y="194" width="28" height="18" rx="1"/>
+      <text class="t-chip" x="212" y="207.5" text-anchor="middle">v2</text>
+      <rect class="chip-hot" x="230" y="194" width="28" height="18" rx="1"/>
+      <text class="t-chip-hot" x="244" y="207.5" text-anchor="middle">v3</text>
+
+      <rect class="box-hot" x="344" y="184" width="236" height="84" rx="1"/>
+      <text class="t-num-hot" x="360" y="208">8</text>
+      <text class="t-name" x="360" y="233">최종 승인</text>
+      <text class="t-desc" x="360" y="254">주 1회, 승인한 것만 기준이 된다</text>
+
+      <!-- ===== 학습 루프 (하단 행) + 수집 ===== -->
+      <rect class="box-s" x="36" y="352" width="236" height="84" rx="1"/>
+      <text class="t-tag" x="52" y="376">원천</text>
+      <text class="t-name" x="52" y="401">수집</text>
+      <text class="t-desc" x="52" y="422">인터뷰 · 기존 문서 · 과거 피드백</text>
+
+      <rect class="box" x="344" y="352" width="236" height="84" rx="1"/>
+      <text class="t-num" x="360" y="376">7</text>
+      <text class="t-name" x="360" y="401">기준 제안</text>
+      <text class="t-desc" x="360" y="422">근거를 붙여 변경안을 올린다</text>
+
+      <rect class="box" x="620" y="352" width="236" height="84" rx="1"/>
+      <text class="t-num" x="636" y="376">6</text>
+      <text class="t-name" x="636" y="401">패턴 축적</text>
+      <text class="t-desc" x="636" y="422">반복되는 차이를 모은다</text>
+
+      <rect class="box" x="896" y="352" width="268" height="84" rx="1"/>
+      <text class="t-num" x="912" y="376">5</text>
+      <text class="t-name" x="912" y="401">실측 기록</text>
+      <text class="t-desc" x="912" y="422">실제 피드백과 사전 평가를 대조한다</text>
+
+      <!-- ===== 경량 온톨로지: 전 폭 바닥 띠 ===== -->
+      <rect class="box-s" x="36" y="480" width="1128" height="64" rx="1"/>
+      <text class="t-tag" x="52" y="503">전역규칙</text>
+      <text class="t-name" x="52" y="528">경량 온톨로지</text>
+      <text class="t-desc" x="176" y="528">용어 · 타입 · 표기를 하나로 (비즈니스 인텔리전스 × 브랜드 아이덴티티)</text>
+      <text class="t-span" x="1148" y="528" text-anchor="end">전 구간 적용</text>
+
+      <!-- ===== 하단 지표 ===== -->
+      <line class="hair" x1="36" y1="576.5" x2="1164" y2="576.5"/>
+      <text class="t-kpi-h" x="36" y="606">돌릴수록 좋아지는지 보는 지표</text>
+      <text class="t-kpi" x="344" y="606">판정 일치율<tspan class="t-dot"> · </tspan>사전 포착률<tspan class="t-dot"> · </tspan>1차 보고 통과율<tspan class="t-dot"> · </tspan>제안 채택률</text>
+    </svg>
+  </figure>
+</div>
+</body>
+</html>

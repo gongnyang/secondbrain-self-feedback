@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>배선도 시안 C</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700&display=swap">
+<style>
+  :root {
+    --paper: #F7F7F5;
+    --ink: #222222;
+    --ink2: #4A4A4A;
+    --g1: #767676;
+    --g2: #A3A3A3;
+    --g3: #D9D9D9;
+    --band: #EDEDED;
+    --orange: #FF5000;
+    --orange-text: #D04000;
+    --sans: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    --serif: "Noto Serif KR", "Batang", serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); }
+  body { font-family: var(--sans); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+  .sheet { max-width: 1280px; margin: 0 auto; padding: 28px 48px 40px; }
+  .stamp { font-size: 12px; letter-spacing: 0.04em; color: var(--g1); margin: 0 0 36px; }
+  .masthead { border-top: 1px solid var(--ink); padding-top: 22px; display: grid; grid-template-columns: 1fr; gap: 14px; }
+  h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(28px, 3.5vw, 46px); line-height: 1.32; letter-spacing: -0.02em; margin: 0; color: var(--ink); }
+  .sub { font-size: 15px; color: var(--ink2); margin: 0; padding-bottom: 20px; border-bottom: 1px solid var(--ink2); }
+  figure { margin: 8px 0 0; }
+  svg { display: block; width: 100%; height: auto; }
+  svg text { font-family: var(--sans); font-variant-numeric: tabular-nums; }
+  .t13 { font-size: 13px; }
+  .mid { fill: var(--ink2); }
+  .tag { font-size: 13px; fill: var(--g1); letter-spacing: 0.06em; }
+  .nm18 { font-size: 18px; font-weight: 700; fill: var(--ink); }
+  .nm20 { font-size: 20px; font-weight: 700; fill: var(--ink); }
+  .fn { font-size: 15px; font-weight: 700; fill: var(--ink); }
+  .num { font-size: 13px; font-weight: 700; }
+  .key { font-size: 13px; font-weight: 600; fill: var(--ink); }
+  .ver { font-size: 13px; font-weight: 600; }
+  .vnew { fill: var(--orange-text); font-weight: 700; }
+  .vplus { font-size: 13px; font-weight: 700; fill: var(--orange-text); }
+  .node { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+  .pt { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+  .exec { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; }
+  .learn { fill: none; stroke: var(--orange); stroke-width: 2; stroke-linecap: round; }
+  .conn { fill: none; stroke: var(--ink); stroke-width: 1.5; }
+  .lead { fill: none; stroke: var(--ink2); stroke-width: 1; }
+  .hair { stroke: var(--ink2); stroke-width: 1; }
+  .metrics { border-top: 1px solid var(--ink); margin-top: 6px; padding-top: 14px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 0; font-size: 14px; }
+  .metrics b { font-weight: 700; margin-right: 22px; }
+  .metrics span { color: var(--ink2); }
+  .metrics i { font-style: normal; color: var(--g2); margin: 0 14px; }
+  @media (max-width: 640px) { .sheet { padding: 20px 16px 28px; } }
+  @media print {
+    html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: var(--paper); }
+    .sheet { padding: 16px 24px; }
+  }
+</style>
+</head>
+<body>
+<main class="sheet">
+  <p class="stamp">시안 C · 에디토리얼 매거진</p>
+  <header class="masthead">
+    <h1>기준을 주면,<br>보고가 돌 때마다 시스템이 스스로 정교해진다</h1>
+    <p class="sub">세컨드브레인 자가피드백 시스템 · 에이전트 배선도</p>
+  </header>
+  <figure>
+<svg viewBox="0 56 1200 668" role="img" aria-label="세컨드브레인 자가피드백 시스템 에이전트 배선도">
+<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="var(--ink)"/></marker>
+  <marker id="ahO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,1 L9,5 L0,9 Z" fill="var(--orange)"/></marker>
+</defs>
+<rect x="40" y="690.0" width="1120" height="22" fill="var(--band)"/>
+<text class="t13 mid" x="56" y="705.5">전 구간 적용</text>
+<line class="hair" x1="40" y1="282" x2="40" y2="690.0"/>
+<text class="tag" x="52" y="150">원천</text>
+<text class="nm18" x="52" y="174">수집</text>
+<text class="t13 mid" x="52" y="195">인터뷰 · 기존 문서 · 과거 피드백</text>
+<line class="conn" x1="60" y1="206" x2="60" y2="270" marker-end="url(#ah)"/>
+<text class="tag" x="52" y="291">전역규칙</text>
+<text class="nm18" x="52" y="306.0">경량 온톨로지</text>
+<text class="t13 mid" x="52" y="328.0">용어 · 타입 · 표기를 하나로</text>
+<text class="t13 mid" x="52" y="346.0">(비즈니스 인텔리전스 × 브랜드 아이덴티티)</text>
+<line class="conn" x1="177.0" y1="300.0" x2="570.0" y2="300.0" marker-end="url(#ah)"/>
+<circle cx="660.0" cy="300.0" r="88.0" class="node"/>
+<text class="tag" x="660.0" y="262.0" text-anchor="middle">기준</text>
+<text class="nm20" x="660.0" y="292.0" text-anchor="middle">세컨드브레인</text>
+<text class="t13 mid" x="660.0" y="315.0" text-anchor="middle">평가기준 · 내부기준</text>
+<line class="hair" x1="614.0" y1="328.0" x2="706.0" y2="328.0"/>
+<text class="ver" x="630.0" y="348.0" text-anchor="middle" fill="var(--g3)">v1</text>
+<text class="ver" x="660.0" y="348.0" text-anchor="middle" fill="var(--g2)">v2</text>
+<text class="ver vnew" x="690.0" y="348.0" text-anchor="middle">v3</text>
+<line x1="681.0" y1="353.0" x2="699.0" y2="353.0" stroke="var(--orange)" stroke-width="2"/>
+<line class="conn" x1="630.3" y1="215.1" x2="615.6" y2="173.2" marker-end="url(#ah)"/>
+<text class="t13 mid" x="646.3" y="199.1">기준 제공</text>
+<path d="M547.3,229.7 C549.0,225.7 550.8,221.8 552.8,217.9 C554.9,214.0 557.1,210.2 559.6,206.4 C562.0,202.7 564.7,199.0 567.5,195.5 C570.3,191.9 573.4,188.5 576.6,185.1 C579.8,181.8 583.2,178.6 586.8,175.6 C590.4,172.5 594.1,169.7 598.1,166.9" class="exec" marker-end="url(#ah)"/>
+<path d="M625.2,152.0 C630.0,149.9 634.9,148.1 639.9,146.5 C645.0,145.0 650.2,143.6 655.4,142.5 C660.7,141.5 666.1,140.7 671.5,140.1 C677.0,139.6 682.5,139.3 688.1,139.3 C693.7,139.3 699.3,139.6 704.9,140.2 C710.6,140.7 716.3,141.6 721.9,142.8" class="exec" marker-end="url(#ah)"/>
+<path d="M751.6,151.7 C756.5,153.7 761.4,155.9 766.2,158.4 C771.0,160.8 775.7,163.5 780.4,166.4 C785.0,169.3 789.6,172.5 794.0,175.9 C798.4,179.2 802.7,182.8 806.9,186.7 C811.1,190.5 815.1,194.5 819.0,198.8 C822.9,203.0 826.6,207.5 830.1,212.1 C833.6,216.8 837.0,221.6 840.1,226.7" class="exec" marker-end="url(#ah)"/>
+<path d="M854.4,254.1 C856.9,259.9 859.1,265.9 861.1,272.0 C863.1,278.1 864.7,284.3 866.1,290.7 C867.6,297.0 868.7,303.5 869.5,310.1 C870.3,316.6 870.8,323.3 871.0,330.0 C871.2,336.7 871.1,343.5 870.7,350.3 C870.3,357.1 869.5,364.0 868.5,370.9 C867.4,377.7 866.0,384.6 864.2,391.4" class="learn" marker-end="url(#ahO)"/>
+<path d="M854.6,420.9 C851.8,427.8 848.7,434.6 845.2,441.3 C841.7,448.0 837.8,454.6 833.7,461.0 C829.5,467.5 825.0,473.8 820.1,479.9 C815.2,486.0 810.0,491.9 804.5,497.7 C799.0,503.4 793.2,508.9 787.0,514.1 C780.9,519.4 774.4,524.4 767.7,529.1 C761.0,533.8 754.0,538.2 746.7,542.4" class="learn" marker-end="url(#ahO)"/>
+<path d="M718.9,556.0 C710.8,559.4 702.6,562.4 694.1,565.1 C685.6,567.7 676.9,569.9 668.0,571.7 C659.2,573.5 650.2,574.9 641.0,575.9 C631.9,576.8 622.6,577.3 613.3,577.4 C603.9,577.4 594.5,577.0 585.0,576.1 C575.6,575.2 566.0,573.9 556.5,572.0 C547.1,570.2 537.6,567.9 528.1,565.1" class="learn" marker-end="url(#ahO)"/>
+<path d="M498.9,554.7 C489.5,550.8 480.1,546.4 471.0,541.5 C461.8,536.5 452.8,531.1 444.0,525.2 C435.2,519.3 426.7,512.9 418.4,506.0 C410.1,499.1 402.1,491.8 394.4,484.0 C386.7,476.2 379.3,467.9 372.3,459.2 C365.3,450.5 358.7,441.4 352.5,431.9 C346.3,422.4 340.6,412.5 335.3,402.2" class="learn" marker-end="url(#ahO)"/>
+<path d="M344.7,388.8 C424.7,388.8 509.6,354.7 575.4,330.8" class="learn" marker-end="url(#ahO)"/>
+<text class="vplus" x="446.3" y="398.0" text-anchor="middle">기준 v+1</text>
+<polyline class="lead" points="527.7,238.3 509.6,229.8 504.0,229.8"/>
+<text class="fn" x="494.0" y="234.8" text-anchor="end">초안 입력</text>
+<text class="t13 mid" x="494.0" y="253.8" text-anchor="end">직원이 보고서 초안을 넣는다</text>
+<polyline class="lead" points="605.4,144.0 598.8,125.1 504.0,125.1"/>
+<text class="fn" x="494.0" y="130.1" text-anchor="end">자가 평가</text>
+<text class="t13 mid" x="494.0" y="149.1" text-anchor="end">기준에 비춰 점검한다</text>
+<polyline class="lead" points="743.5,132.1 752.4,114.2 912.0,114.2"/>
+<text class="fn" x="922.0" y="119.2" text-anchor="start">1장 리포트</text>
+<text class="t13 mid" x="922.0" y="138.2" text-anchor="start">판정과 수정할 것 3건</text>
+<polyline class="lead" points="862.8,234.7 881.8,228.5 912.0,228.5"/>
+<text class="fn" x="922.0" y="233.5" text-anchor="start">1차 보고</text>
+<text class="t13 mid" x="922.0" y="252.5" text-anchor="start">고쳐서 보고한다</text>
+<polyline class="lead" points="874.2,413.2 891.9,422.6 912.0,422.6"/>
+<text class="fn" x="922.0" y="427.6" text-anchor="start">실측 기록</text>
+<text class="t13 mid" x="922.0" y="446.6" text-anchor="start">실제 피드백과 사전 평가를 대조한다</text>
+<polyline class="lead" points="738.0,564.7 743.7,583.9 912.0,583.9"/>
+<text class="fn" x="922.0" y="588.9" text-anchor="start">패턴 축적</text>
+<text class="t13 mid" x="922.0" y="607.9" text-anchor="start">반복되는 차이를 모은다</text>
+<polyline class="lead" points="506.1,574.4 496.3,591.8 288.0,591.8"/>
+<text class="fn" x="278.0" y="596.8" text-anchor="end">기준 제안</text>
+<text class="t13 mid" x="278.0" y="615.8" text-anchor="end">근거를 붙여 변경안을 올린다</text>
+<polyline class="lead" points="313.2,392.9 293.9,398.1 288.0,398.1"/>
+<text class="fn" x="278.0" y="403.1" text-anchor="end">최종 승인</text>
+<text class="t13 mid" x="278.0" y="422.1" text-anchor="end">주 1회, 승인한 것만 기준이 된다</text>
+<circle cx="542.2" cy="245.1" r="13.0" class="pt"/>
+<text class="num" x="542.2" y="249.7" text-anchor="middle" fill="var(--ink)">1</text>
+<circle cx="610.7" cy="159.1" r="13.0" class="pt"/>
+<text class="num" x="610.7" y="163.7" text-anchor="middle" fill="var(--ink)">2</text>
+<circle cx="736.3" cy="146.4" r="13.0" class="pt"/>
+<text class="num" x="736.3" y="151.0" text-anchor="middle" fill="var(--ink)">3</text>
+<circle cx="847.5" cy="239.6" r="13.0" class="pt"/>
+<text class="num" x="847.5" y="244.2" text-anchor="middle" fill="var(--ink)">4</text>
+<circle cx="860.1" cy="405.8" r="13.0" class="pt"/>
+<text class="num" x="860.1" y="410.4" text-anchor="middle" fill="var(--ink)">5</text>
+<circle cx="733.5" cy="549.3" r="13.0" class="pt"/>
+<text class="num" x="733.5" y="553.9" text-anchor="middle" fill="var(--ink)">6</text>
+<circle cx="513.9" cy="560.4" r="13.0" class="pt"/>
+<text class="num" x="513.9" y="565.0" text-anchor="middle" fill="var(--ink)">7</text>
+<circle cx="328.7" cy="388.8" r="13.0" fill="var(--orange)" stroke="var(--orange)" stroke-width="1.5"/>
+<text class="num" x="328.7" y="393.4" text-anchor="middle" fill="#FFFFFF">8</text>
+<line x1="560" y1="86" x2="588" y2="86" class="exec" marker-end="url(#ah)"/>
+<text class="key" x="598" y="91">실행 루프 · 보고서 한 건을 고친다</text>
+<line x1="500" y1="659" x2="528" y2="659" class="learn" marker-end="url(#ahO)"/>
+<text class="key" x="538" y="664">학습 루프 · 기준 자체를 고친다</text>
+</svg>
+  </figure>
+  <footer class="metrics">
+    <b>돌릴수록 좋아지는지 보는 지표</b>
+    <span>판정 일치율</span><i>·</i><span>사전 포착률</span><i>·</i><span>1차 보고 통과율</span><i>·</i><span>제안 채택률</span>
+  </footer>
+</main>
+</body>
+</html>

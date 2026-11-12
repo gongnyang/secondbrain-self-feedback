@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>배선도 디자인 플랜</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --ink: #222222;
+    --ink-2: #4A4A4A;
+    --ink-3: #767676;
+    --line: #D9D9D9;
+    --line-2: #EDEDED;
+    --paper: #FFFFFF;
+    --wash: #F7F7F5;
+    --orange: #FF5000;
+    --orange-text: #D04000;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    font-variant-numeric: tabular-nums;
+    word-break: keep-all;
+  }
+  .page { max-width: 1080px; margin: 0 auto; padding: 72px 32px 120px; }
+
+  /* 머리 */
+  .overline { font-size: 13px; letter-spacing: .08em; color: var(--ink-3); margin: 0 0 20px; }
+  h1 { font-size: 40px; line-height: 1.25; font-weight: 700; letter-spacing: -.02em; margin: 0; text-wrap: balance; max-width: 22em; }
+  .lead { font-size: 18px; color: var(--ink-2); margin: 20px 0 0; max-width: 40em; }
+  .rule { height: 2px; background: var(--ink); margin: 40px 0 0; position: relative; }
+  .rule::before { content: ""; position: absolute; left: 0; top: 0; width: 72px; height: 2px; background: var(--orange); }
+
+  /* 섹션 */
+  section { margin-top: 88px; }
+  .sec-head { display: grid; grid-template-columns: 56px 1fr; align-items: baseline; margin-bottom: 28px; }
+  .sec-no { font-size: 14px; color: var(--ink-3); }
+  h2 { font-size: 26px; line-height: 1.35; font-weight: 700; letter-spacing: -.015em; margin: 0; text-wrap: balance; }
+  .sec-body { padding-left: 56px; }
+  h3 { font-size: 16px; font-weight: 700; margin: 36px 0 12px; }
+  p { margin: 0 0 12px; max-width: 44em; }
+  .note { font-size: 14px; color: var(--ink-3); }
+
+  /* 결론 3줄 */
+  .claims { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .claims li { display: grid; grid-template-columns: 40px 1fr; padding: 18px 0; border-bottom: 1px solid var(--line); font-size: 18px; }
+  .claims .n { color: var(--ink-3); font-size: 14px; padding-top: 4px; }
+  .claims b { font-weight: 700; }
+
+  /* 표 */
+  .tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th { text-align: left; font-weight: 600; font-size: 13px; color: var(--ink-3); padding: 0 16px 10px 0; border-bottom: 1px solid var(--ink); white-space: nowrap; }
+  td { padding: 13px 16px 13px 0; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+  td:last-child, th:last-child { padding-right: 0; }
+  td.k { font-weight: 700; white-space: nowrap; }
+  td.no { color: var(--ink-3); width: 36px; }
+  tr.group td { padding-top: 26px; font-size: 13px; color: var(--ink-3); border-bottom: 1px solid var(--line); letter-spacing: .02em; }
+  tr.gate td { border-bottom-color: var(--orange); }
+  tr.gate td.k { color: var(--orange-text); }
+
+  /* 승격 경로 */
+  .ladder { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--ink); margin: 8px 0 12px; }
+  .ladder div { padding: 16px 16px 18px; border-right: 1px solid var(--line); }
+  .ladder div:last-child { border-right: 0; background: var(--ink); color: #fff; }
+  .ladder div:nth-child(4) { box-shadow: inset 0 -3px 0 var(--orange); }
+  .ladder .t { font-weight: 700; display: block; }
+  .ladder .d { font-size: 13px; color: var(--ink-3); display: block; margin-top: 4px; line-height: 1.5; }
+  .ladder div:last-child .d { color: #D9D9D9; }
+
+  /* 시안 */
+  .tabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid var(--ink); }
+  .tabs button {
+    font: inherit; font-size: 15px; color: var(--ink-3); background: none; border: 0; cursor: pointer;
+    padding: 12px 20px 12px 0; margin-right: 12px; border-bottom: 3px solid transparent; margin-bottom: -2px;
+  }
+  .tabs button[aria-selected="true"] { color: var(--ink); font-weight: 700; border-bottom-color: var(--orange); }
+  .tabs button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .frame { margin-top: 20px; border: 1px solid var(--line); aspect-ratio: 1200 / 860; background: var(--wash); }
+  .frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .frame-meta { display: flex; justify-content: space-between; gap: 24px; margin-top: 12px; font-size: 14px; color: var(--ink-2); }
+  .frame-meta a { color: var(--ink); white-space: nowrap; }
+
+  /* 스크립트 */
+  .script { border-top: 1px solid var(--ink); }
+  .script .row { display: grid; grid-template-columns: 200px 1fr; gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--line-2); }
+  .script .who { font-weight: 700; }
+  .script .who small { display: block; font-weight: 400; font-size: 13px; color: var(--ink-3); margin-bottom: 2px; }
+  .script .one { font-weight: 700; margin: 0 0 6px; }
+  .script .say { margin: 0; color: var(--ink-2); }
+  .script .row.gate { border-bottom-color: var(--orange); }
+  .script .row.gate .who { color: var(--orange-text); }
+  .script .band { padding: 26px 0 8px; font-size: 13px; color: var(--ink-3); border-bottom: 1px solid var(--line); letter-spacing: .02em; }
+
+  /* 질문 */
+  .qa { border-top: 1px solid var(--ink); }
+  .qa .row { padding: 20px 0; border-bottom: 1px solid var(--line-2); }
+  .qa .q { font-weight: 700; margin: 0 0 6px; }
+  .qa .a { margin: 0; color: var(--ink-2); }
+
+  /* 결정 */
+  ol.todo { margin: 0; padding: 0; list-style: none; counter-reset: t; border-top: 1px solid var(--ink); }
+  ol.todo li { counter-increment: t; display: grid; grid-template-columns: 40px 1fr; padding: 16px 0; border-bottom: 1px solid var(--line-2); }
+  ol.todo li::before { content: counter(t); color: var(--ink-3); font-size: 14px; padding-top: 2px; }
+  ol.todo b { display: block; }
+  ol.todo span { color: var(--ink-2); font-size: 15px; }
+
+  code { font-family: "JetBrains Mono", Consolas, monospace; font-size: .9em; background: var(--wash); padding: 1px 5px; }
+
+  @media (max-width: 760px) {
+    .page { padding: 40px 16px 80px; }
+    h1 { font-size: 30px; }
+    .sec-head { grid-template-columns: 36px 1fr; }
+    .sec-body { padding-left: 0; }
+    .ladder { grid-template-columns: 1fr; }
+    .ladder div { border-right: 0; border-bottom: 1px solid var(--line); }
+    .script .row { grid-template-columns: 1fr; gap: 6px; }
+    .frame-meta { flex-direction: column; gap: 6px; }
+  }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    section { break-inside: avoid-page; }
+    .tabs, .frame, .frame-meta { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <p class="overline">세컨드브레인 자가피드백 시스템 · 배선도 디자인 플랜</p>
+    <h1>누적 발전을 그림의 주인공으로 올리고, 고리 두 개로 설명한다</h1>
+    <p class="lead">위 고리는 보고서 한 건을 고치고, 아래 고리는 기준 자체를 고친다. 기준을 바꾸는 문은 최종 승인 하나뿐이다.</p>
+    <div class="rule"></div>
+  </header>
+
+  <section>
+    <div class="sec-head"><span class="sec-no">01</span><h2>결론 세 가지</h2></div>
+    <div class="sec-body">
+      <ul class="claims">
+        <li><span class="n">1</span><span><b>구조는 바닥 한 장, 기준 한 덩어리, 고리 두 개다.</b> 바닥은 경량 온톨로지(전역규칙), 기준은 세컨드브레인, 고리는 실행 루프와 학습 루프.</span></li>
+        <li><span class="n">2</span><span><b>쌓이는 길은 하나로 고정한다.</b> 로그 → 패턴 → 제안 → 승인 → 기준. 시스템은 스스로 쌓지만 기준은 승인 없이 바뀌지 않는다.</span></li>
+        <li><span class="n">3</span><span><b>같은 내용을 다섯 가지 스타일로 그렸고, D와 B로 좁혔다.</b> 바탕 색감은 D(흰 바탕, 차콜 선, 오렌지 한 색)로 통일한다.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-no">02</span><h2>배선: 열한 개 지점과 맡는 에이전트</h2></div>
+    <div class="sec-body">
+      <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>지점</th><th>하는 일</th><th>맡는 쪽</th><th>여기서 쌓이는 것</th></tr></thead>
+        <tbody>
+          <tr class="group"><td colspan="5">바탕</td></tr>
+          <tr><td class="no"></td><td class="k">경량 온톨로지</td><td>용어, 타입, 표기를 하나로 정한다. 숫자 규칙과 표현 규칙을 한 곳에 둔다</td><td>정리 에이전트</td><td>용어, 지표 정의, 표기 규칙</td></tr>
+          <tr><td class="no"></td><td class="k">수집</td><td>인터뷰, 기존 문서, 과거 피드백을 지정 폴더에서 모은다</td><td>수집 에이전트</td><td>원자료(고치지 않음)</td></tr>
+          <tr><td class="no"></td><td class="k">세컨드브레인</td><td>평가기준과 내부기준을 근거 원문과 함께 보관한다</td><td>정리 에이전트</td><td>기준 v1, v2, v3</td></tr>
+          <tr class="group"><td colspan="5">실행 루프 · 보고서 한 건을 고친다</td></tr>
+          <tr><td class="no">1</td><td class="k">초안 입력</td><td>직원이 보고서 초안을 넣는다</td><td>직원</td><td>보고서 사례</td></tr>
+          <tr><td class="no">2</td><td class="k">자가 평가</td><td>기준과 비슷한 과거 사례에 비춰 점검한다</td><td>평가 에이전트</td><td>평가 로그</td></tr>
+          <tr><td class="no">3</td><td class="k">1장 리포트</td><td>판정 한 줄, 고칠 것 3건, 근거 문장을 한 장으로 낸다</td><td>평가 에이전트</td><td></td></tr>
+          <tr><td class="no">4</td><td class="k">1차 보고</td><td>직원이 고쳐서 보고한다</td><td>직원</td><td></td></tr>
+          <tr class="group"><td colspan="5">학습 루프 · 기준 자체를 고친다</td></tr>
+          <tr><td class="no">5</td><td class="k">실측 기록</td><td>실제 피드백을 사전 평가와 나란히 적는다</td><td>기록 에이전트</td><td>대조 로그(놓친 것, 잘못 짚은 것)</td></tr>
+          <tr><td class="no">6</td><td class="k">패턴 축적</td><td>여러 보고에서 반복되는 차이만 모은다</td><td>분석 에이전트</td><td>패턴과 횟수</td></tr>
+          <tr><td class="no">7</td><td class="k">기준 제안</td><td>근거 사례를 붙여 변경안 카드를 만든다</td><td>제안 에이전트</td><td>제안 카드</td></tr>
+          <tr class="gate"><td class="no">8</td><td class="k">최종 승인</td><td>주 1회 묶어서 본다. 승인한 것만 다음 버전 기준이 된다</td><td>승인권자</td><td>기준 새 버전, 반려 기록</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note" style="margin-top:16px">에이전트 여섯(수집, 정리, 평가, 기록, 분석, 제안)은 모두 기준 파일을 읽기만 한다. 기준 파일에 쓰는 것은 승인 절차뿐이다.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-no">03</span><h2>누적 설계: 쌓이는 길은 하나, 문도 하나</h2></div>
+    <div class="sec-body">
+      <div class="ladder">
+        <div><span class="t">로그</span><span class="d">평가와 실제 피드백을 그대로 적는다. 지우지 않는다</span></div>
+        <div><span class="t">패턴</span><span class="d">서로 다른 보고에서 같은 차이가 반복될 때만 올린다</span></div>
+        <div><span class="t">제안</span><span class="d">바꿀 내용 한 줄, 근거 사례, 바꿨을 때의 영향</span></div>
+        <div><span class="t">승인</span><span class="d">주 1회 묶어서 승인, 반려, 보류</span></div>
+        <div><span class="t">기준</span><span class="d">버전을 올리고 이전 버전은 남겨 둔다</span></div>
+      </div>
+      <p class="note">패턴으로 올리는 반복 횟수와 주간 승인 건수는 아직 정하지 않았다. 운영하면서 맞춘다.</p>
+
+      <h3>승인 없이 자동으로 쌓이는 것과 승인이 필요한 것</h3>
+      <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>구분</th><th>대상</th><th>방식</th></tr></thead>
+        <tbody>
+          <tr><td class="k">자동</td><td>보고서 사례, 평가 로그, 대조 로그, 패턴 횟수</td><td>스킬을 돌릴 때마다 기록</td></tr>
+          <tr><td class="k">사후 확인</td><td>용어 추가, 모범 사례 등록</td><td>먼저 반영하고 주간 목록으로 확인</td></tr>
+          <tr class="gate"><td class="k">사전 승인</td><td>기준 문구, 가중치, 임계값</td><td>제안 카드로 올리고 승인된 것만 반영</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h3>돌릴수록 좋아지는지 보는 지표</h3>
+      <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>지표</th><th>뜻</th></tr></thead>
+        <tbody>
+          <tr><td class="k">판정 일치율</td><td>사전 판정과 실제 판정이 같았던 비율</td></tr>
+          <tr><td class="k">사전 포착률</td><td>실제로 지적된 것 중 시스템이 미리 짚은 비율</td></tr>
+          <tr><td class="k">1차 보고 통과율</td><td>1차 보고에서 재작성 없이 넘어간 비율</td></tr>
+          <tr><td class="k">제안 채택률</td><td>올린 기준 변경안 중 승인된 비율</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note" style="margin-top:16px">목표 수치는 넣지 않았다. 도입 전 4주 동안 지금 수준을 먼저 재야 비교가 된다.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-no">04</span><h2>스타일 시안 다섯 가지</h2></div>
+    <div class="sec-body">
+      <div class="tabs" role="tablist" aria-label="스타일 시안">
+        <button role="tab" aria-selected="true"  data-src="시안/A-보드룸-화이트.html" data-note="맥킨지식 한 장. 가장 안전하고 인쇄에 강하다. 평범해 보일 수 있다.">A 보드룸 화이트</button>
+        <button role="tab" aria-selected="false" data-src="시안/B-다크-블루프린트.html" data-note="팔란티어풍 설계도. 화면 발표에서 가장 단단해 보인다. 인쇄에는 불리하다.">B 다크 블루프린트</button>
+        <button role="tab" aria-selected="false" data-src="시안/C-에디토리얼.html" data-note="경제지 지면. 나선으로 누적을 보여준다. 정보 밀도는 가장 낮다.">C 에디토리얼</button>
+        <button role="tab" aria-selected="false" data-src="시안/D-노선도.html" data-note="지하철 노선도. 가장 빨리 읽힌다. 가볍게 보일 수 있다.">D 노선도</button>
+        <button role="tab" aria-selected="false" data-src="시안/E-지층-단면.html" data-note="기준이 층으로 쌓이는 단면. 누적이 가장 직접적으로 보인다. 연결부가 복잡하다.">E 지층 단면</button>
+      </div>
+      <div class="frame"><iframe id="viewer" src="시안/A-보드룸-화이트.html" title="스타일 시안 미리보기"></iframe></div>
+      <div class="frame-meta"><span id="viewer-note">맥킨지식 한 장. 가장 안전하고 인쇄에 강하다. 평범해 보일 수 있다.</span><a id="viewer-link" href="시안/A-보드룸-화이트.html" target="_blank" rel="noopener">새 창으로 크게 보기</a></div>
+
+      <h3>비교</h3>
+      <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>시안</th><th>도식</th><th>누적이 보이는 방식</th><th>잘 맞는 자리</th><th>걸리는 점</th></tr></thead>
+        <tbody>
+          <tr><td class="k">A 보드룸 화이트</td><td>이중 루프</td><td>아래 고리가 기준으로 되돌아온다</td><td>인쇄 보고, 결재 문서</td><td>평범해 보임</td></tr>
+          <tr><td class="k">B 다크 블루프린트</td><td>온톨로지 평면 + 회로</td><td>평면 위에 회로가 올라간다</td><td>화면 발표</td><td>인쇄, 차가운 인상</td></tr>
+          <tr><td class="k">C 에디토리얼</td><td>나선</td><td>돌 때마다 반경이 커진다</td><td>첫 장, 표지</td><td>정보 밀도</td></tr>
+          <tr><td class="k">D 노선도</td><td>순환선</td><td>학습선이 한 바퀴 돌아 환승한다</td><td>직원 안내, 교육</td><td>가벼워 보임</td></tr>
+          <tr><td class="k">E 지층 단면</td><td>루프 + 적층</td><td>승인할 때마다 층이 하나 쌓인다</td><td>누적을 강조하는 장</td><td>연결부 복잡</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h3>결정</h3>
+      <p><b>최종 배선도는 D(노선도형)와 B(블루프린트) 두 가지로 만들었다.</b> 바탕 색감은 D로 통일했다. 흰 바탕, 차콜 선, 오렌지 한 색이다. 도식 아래에는 경량 온톨로지, 세컨드브레인, 단계별 입출력, 쌓이는 길, 지표, 명령을 풀어 적었다.</p>
+      <p><a href="배선도-D.html" target="_blank" rel="noopener">배선도-D.html</a> · <a href="배선도-B.html" target="_blank" rel="noopener">배선도-B.html</a></p>
+      <p class="note">이중 루프를 주 도식으로 고른 근거: 안쪽 고리는 행동을 고치고 바깥 고리는 기준을 고친다는 이중 루프 학습 이론과 이 시스템의 구조가 같다. 인피니티 루프는 흔하고 누적이 안 보여서 뺐다.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-no">05</span><h2>지점별 설명 스크립트</h2></div>
+    <div class="sec-body">
+      <p class="note" style="margin-bottom:20px">굵은 줄이 그 지점에서 꼭 전할 한마디, 아래가 풀어서 말할 내용이다. 전체 3분 분량.</p>
+      <div class="script">
+        <div class="row">
+          <div class="who"><small>시작</small>전체 그림</div>
+          <div><p class="one">기준을 한 번 주시면, 보고가 돌 때마다 시스템이 그 기준을 더 정교하게 만듭니다.</p>
+          <p class="say">그림은 고리 두 개만 보시면 됩니다. 위 고리는 보고서 한 건을 고칩니다. 아래 고리는 기준 자체를 고칩니다. 두 고리는 1차 보고에서 만나고, 세컨드브레인에서 다시 만납니다.</p></div>
+        </div>
+
+        <div class="band">바탕</div>
+        <div class="row">
+          <div class="who"><small>전역규칙</small>경량 온톨로지</div>
+          <div><p class="one">가장 밑에는 용어와 표기의 약속을 깝니다.</p>
+          <p class="say">같은 지표를 팀마다 다르게 부르면 평가가 흔들립니다. 그래서 숫자를 다루는 규칙과 표현을 다루는 규칙을 한 곳에 정해 두고, 모든 에이전트가 이것만 따르게 합니다. 팔란티어가 온톨로지로 조직의 판단 언어부터 통일하는 것과 같은 방식입니다. 규모는 가볍게 잡았습니다. 타입은 일곱 개 이내입니다.</p></div>
+        </div>
+        <div class="row">
+          <div class="who"><small>원천</small>수집</div>
+          <div><p class="one">원천은 인터뷰, 기존 문서, 과거에 주신 피드백 세 가지입니다.</p>
+          <p class="say">지정한 폴더만 읽고, 원본은 고치지 않고 보관합니다. 인터뷰에서 하신 말씀과 실제로 남기신 피드백이 다르면 실제 피드백을 우선하고 확인을 요청드립니다. 말로 하는 기준과 실제 판단은 다른 경우가 흔합니다.</p></div>
+        </div>
+        <div class="row">
+          <div class="who"><small>기준</small>세컨드브레인</div>
+          <div><p class="one">평가기준과 내부기준이 여기에 근거 원문과 함께 들어갑니다.</p>
+          <p class="say">기준마다 근거가 된 말씀을 원문 그대로 붙이고, 해석은 따로 적습니다. 근거가 한 건뿐인 기준은 가설로 표시합니다. 확인받은 것만 정식 기준이 됩니다.</p></div>
+        </div>
+
+        <div class="band">실행 루프 · 보고서 한 건을 고친다</div>
+        <div class="row">
+          <div class="who"><small>1</small>초안 입력</div>
+          <div><p class="one">직원은 초안을 넣고 스킬을 한 번 실행하면 됩니다.</p>
+          <p class="say">따로 배울 것이 없습니다. 입력한 보고서는 그대로 사례로 쌓입니다.</p></div>
+        </div>
+        <div class="row">
+          <div class="who"><small>2</small>자가 평가</div>
+          <div><p class="one">지적마다 보고서의 해당 문장과 기준 번호가 붙습니다.</p>
+          <p class="say">평가 에이전트가 기준과 비슷한 과거 사례를 불러와 점검합니다. 원문 인용이나 기준 번호가 없는 지적은 버리게 했습니다. 근거 없는 지적과 과한 칭찬을 막는 장치입니다.</p></div>
+        </div>
+        <div class="row">
+          <div class="who"><small>3</small>1장 리포트</div>
+          <div><p class="one">결과는 한 장입니다.</p>
+          <p class="say">맨 위에 판정 한 줄, 그 아래 고칠 것 세 가지, 축별 점검표, 문제 문장과 수정 예시 순서입니다. 꾸밈은 빼고 강조색은 한 가지만 씁니다.</p></div>
+        </div>
+        <div class="row">
+          <div class="who"><small>4</small>1차 보고</div>
+          <div><p class="one">시스템은 사전 점검까지만 합니다.</p>
+          <p class="say">보고와 판정은 지금처럼 사람이 합니다. 리포트에도 판정을 대신하지 않는다고 적습니다.</p></div>
+        </div>
+
+        <div class="band">학습 루프 · 기준 자체를 고친다</div>
+        <div class="row">
+          <div class="who"><small>5</small>실측 기록</div>
+          <div><p class="one">여기부터가 이 시스템의 핵심입니다.</p>
+          <p class="say">실제 보고에서 주신 피드백을 사전 평가와 나란히 적습니다. 시스템이 놓친 것과 잘못 짚은 것이 여기서 드러납니다.</p></div>
+        </div>
+        <div class="row">
+          <div class="who"><small>6</small>패턴 축적</div>
+          <div><p class="one">한 번 나온 차이로는 아무것도 바꾸지 않습니다.</p>
+          <p class="say">서로 다른 보고에서 같은 차이가 반복될 때만 패턴으로 올립니다. 그날의 사정으로 나온 말씀이 기준으로 굳는 것을 막습니다.</p></div>
+        </div>
+        <div class="row">
+          <div class="who"><small>7</small>기준 제안</div>
+          <div><p class="one">패턴이 쌓이면 변경안이 카드 한 장으로 올라옵니다.</p>
+          <p class="say">바꿀 내용 한 줄, 근거 사례 두세 건, 바꿨을 때 지난 평가가 어떻게 달라지는지가 들어갑니다.</p></div>
+        </div>
+        <div class="row gate">
+          <div class="who"><small>8</small>최종 승인</div>
+          <div><p class="one">기준을 바꾸는 문은 이것 하나입니다.</p>
+          <p class="say">주 1회 묶어서 올리고, 승인하신 것만 다음 버전 기준이 됩니다. 이전 버전은 남겨 두어 언제든 되돌릴 수 있습니다. 시스템은 스스로 쌓지만, 기준을 스스로 바꾸지는 못합니다.</p></div>
+        </div>
+
+        <div class="row">
+          <div class="who"><small>마무리</small>지표</div>
+          <div><p class="one">좋아지는지는 숫자 네 개로 확인합니다.</p>
+          <p class="say">판정 일치율, 사전 포착률, 1차 보고 통과율, 제안 채택률입니다. 도입 전 4주 동안 지금 수준을 먼저 재고, 그 뒤로 달마다 비교해 보고드리겠습니다.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-no">06</span><h2>나올 만한 질문과 답</h2></div>
+    <div class="sec-body">
+      <div class="qa">
+        <div class="row"><p class="q">AI가 내 기준을 정말 재현하나?</p>
+          <p class="a">2시간 인터뷰로 만든 에이전트가 설문 응답을 본인이 2주 뒤 다시 답한 수준의 85%까지 맞췄다는 스탠퍼드 연구가 있습니다(1,052명). 반면 개인 단위 예측은 아직 믿기 어렵다는 후속 연구도 있습니다. 그래서 판정을 대신하게 하지 않고 사전 점검으로만 쓰며, 실제 판정과의 일치율을 달마다 잽니다.</p></div>
+        <div class="row"><p class="q">기준이 엉뚱하게 바뀔 위험은?</p>
+          <p class="a">에이전트는 기준 파일을 읽기만 합니다. 규칙 문서에 적는 것으로 끝내지 않고 쓰기 자체를 막는 장치를 겁니다. 처음 주신 원본 기준은 고치지 않고 따로 보관하며, 버전마다 되돌릴 지점을 남깁니다.</p></div>
+        <div class="row"><p class="q">직원들이 점수만 맞추려 들지 않나?</p>
+          <p class="a">성과 지표를 사전 점수로 두지 않고 실제 판정으로 둡니다. 지적에는 원문 인용이 필수라 단어만 끼워 넣어서는 통과하지 못합니다.</p></div>
+        <div class="row"><p class="q">내 시간은 얼마나 드나?</p>
+          <p class="a">주 1회, 제안 다섯 건 이내로 묶어 올리는 것이 설계 목표입니다. 실제 소요 시간은 운영해 봐야 압니다.</p></div>
+        <div class="row"><p class="q">정말 사람이 손대지 않아도 쌓이나?</p>
+          <p class="a">사례, 로그, 패턴은 스킬을 돌릴 때마다 자동으로 쌓입니다. 사람이 보는 것은 기준 변경 승인뿐입니다. 이 방식의 원안도 사람 검토를 한 단계는 두라고 권합니다.</p></div>
+        <div class="row"><p class="q">자료가 밖으로 나가나?</p>
+          <p class="a">파일 보관과 수집은 PC 안에서만 합니다. 다만 평가와 정리에 쓰는 AI 호출은 외부 서버를 거칩니다. 사내 보안 정책에 맞는 호출 경로를 먼저 확인해야 합니다. 아래 정할 것 2번입니다.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-no">07</span><h2>정할 것 다섯 가지</h2></div>
+    <div class="sec-body">
+      <ol class="todo">
+        <li><div><b>배선도 최종 선택</b><span>D와 B 중 본 장으로 쓸 것. 바탕 색감은 D로 정해졌고, 평가 리포트도 같은 색감으로 맞췄다.</span></div></li>
+        <li><div><b>AI 호출 경로와 보안</b><span>인터뷰와 보고서 내용이 AI 서버로 전송된다. 사내 정책상 허용되는 경로(계약 형태, 마스킹 범위)를 확인해야 뼈대를 확정할 수 있다.</span></div></li>
+        <li><div><b>온톨로지 타입</b><span>조사에서 안이 두 개 나왔다. 온톨로지에는 용어, 지표, 사업 대상, 표기, 톤, 시각 토큰, 규칙 일곱 개만 두고 원칙, 기준, 사례, 피드백은 세컨드브레인 쪽으로 넘기는 안을 권고.</span></div></li>
+        <li><div><b>폴더 구조</b><span>수집, 위키, 누적 세 조사에서 폴더안이 각각 나왔다. 하나로 합친 안을 뼈대 만들 때 제시.</span></div></li>
+        <li><div><b>승격 문턱</b><span>몇 번 반복되면 패턴으로 올릴지, 주간 승인 건수를 몇 건으로 할지. 처음에는 3회, 5건으로 시작해 조정하는 안.</span></div></li>
+      </ol>
+      <p class="note" style="margin-top:20px">근거 자료는 <code>리서치위키/index.md</code>에 42쪽으로 정리했다. 각 쪽에 사실, 제안, 미확인을 구분해 적었다.</p>
+    </div>
+  </section>
+
+</div>
+<script>
+  (function () {
+    var tabs = document.querySelectorAll('.tabs button');
+    var viewer = document.getElementById('viewer');
+    var note = document.getElementById('viewer-note');
+    var link = document.getElementById('viewer-link');
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        tabs.forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+        t.setAttribute('aria-selected', 'true');
+        viewer.src = t.dataset.src;
+        link.href = t.dataset.src;
+        note.textContent = t.dataset.note;
+      });
+    });
+  })();
+</script>
+</body>
+</html>

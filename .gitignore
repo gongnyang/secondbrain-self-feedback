@@ -1,0 +1,14 @@
+# 원자료와 실제 기록은 올리지 않는다
+intake/inbox/*/*
+intake/raw/*
+intake/quarantine/*
+loop/logs/*
+loop/approvals/OPEN
+reports/*
+!reports/_template.html
+!**/.gitkeep
+
+# 작업 부산물
+.DS_Store
+Thumbs.db
+*.tmp
