@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>세컨드브레인 자가피드백 시스템</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --orange: #FF5000;
+    --orange-text: #D04000;
+    --ink: #222222;
+    --ink-2: #4A4A4A;
+    --gray: #767676;
+    --gray-2: #A3A3A3;
+    --line-1: #D9D9D9;
+    --line-2: #EDEDED;
+    --zone: #F7F7F5;
+    --bg: #FFFFFF;
+    --font: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    --mono: ui-monospace, Consolas, "SFMono-Regular", Menlo, monospace;
+    --body: clamp(18px, 1.45vw, 22px);
+    --nm: clamp(24px, 2.25vw, 32px);
+    --h2: clamp(36px, 3.4vw, 48px);
+    --gut: clamp(24px, 4.5vw, 72px);
+    --nav-h: 76px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: var(--nav-h); }
+  html, body { margin: 0; background: var(--bg); }
+  body {
+    font-family: var(--font);
+    color: var(--ink);
+    font-size: var(--body);
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, p { margin: 0; }
+  h1, h2, h3 { text-wrap: balance; }
+  svg { display: block; width: 100%; height: auto; }
+  svg text { font-family: var(--font); font-variant-numeric: tabular-nums; }
+
+  /* 내비게이션: 노선도의 역 목록 */
+  .nav {
+    position: sticky; top: 0; z-index: 10;
+    height: var(--nav-h);
+    background: var(--bg);
+    border-bottom: 1px solid var(--line-2);
+  }
+  .nav ol {
+    list-style: none; margin: 0 auto; padding: 0 var(--gut);
+    max-width: 1440px; height: 100%;
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    position: relative;
+  }
+  .nav ol::before {
+    content: ""; position: absolute; top: 26px; height: 4px;
+    left: calc(var(--gut) + (100% - 2 * var(--gut)) / 14);
+    right: calc(var(--gut) + (100% - 2 * var(--gut)) / 14);
+    background: var(--line-1);
+  }
+  .nav a {
+    position: relative; display: flex; flex-direction: column; align-items: center;
+    padding-top: 44px; text-decoration: none;
+    font-size: 15px; font-weight: 500; color: var(--gray); white-space: nowrap;
+  }
+  .nav a::before {
+    content: ""; position: absolute; top: 18px; left: 50%;
+    width: 20px; height: 20px; margin-left: -10px; border-radius: 50%;
+    background: var(--bg); border: 4px solid var(--gray-2);
+  }
+  .nav a:hover { color: var(--ink); }
+  .nav a[aria-current="true"] { color: var(--ink); font-weight: 700; }
+  .nav a[aria-current="true"]::before { background: var(--ink); border-color: var(--ink); }
+
+  /* 구획 공통 */
+  .sec {
+    min-height: calc(100vh - var(--nav-h));
+    padding: clamp(80px, 9vh, 128px) 0;
+    border-top: 1px solid var(--line-2);
+  }
+  .sec:first-of-type { border-top: 0; }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 0 var(--gut); }
+  .sh { margin-bottom: clamp(48px, 6vh, 80px); }
+  .sh-no { display: block; font-size: 18px; font-weight: 600; letter-spacing: .08em; color: var(--gray); margin-bottom: 16px; }
+  .sh h2 { font-size: var(--h2); line-height: 1.25; font-weight: 800; letter-spacing: -.025em; }
+  .sh-sub { margin-top: 16px; font-size: clamp(20px, 1.7vw, 26px); color: var(--ink-2); max-width: 40em; }
+  .legend { display: inline-flex; align-items: center; gap: 16px; margin-top: 24px; font-size: var(--body); font-weight: 600; }
+  .legend i { display: inline-block; width: 56px; height: 10px; background: var(--ink); }
+  .legend.learn i { background: var(--orange); }
+
+  /* 1. 첫 화면 */
+  .hero { padding-top: clamp(56px, 7vh, 96px); }
+  .hero h1 {
+    font-size: clamp(56px, 6.4vw, 96px);
+    line-height: 1.16; font-weight: 800; letter-spacing: -.04em;
+    max-width: 15em;
+  }
+  .hero .sub { margin-top: 28px; font-size: clamp(22px, 2vw, 30px); font-weight: 500; color: var(--ink-2); }
+  .hero svg { margin-top: clamp(48px, 6vh, 80px); }
+
+  .m-nm { font-size: 32px; font-weight: 700; fill: var(--ink); }
+  .m-nm-o { font-size: 32px; font-weight: 700; fill: var(--orange); }
+  .m-ds { font-size: 20px; font-weight: 400; fill: var(--gray); }
+  .m-tg { font-size: 18px; font-weight: 600; fill: var(--gray); letter-spacing: .08em; }
+  .m-lg { font-size: 24px; font-weight: 500; fill: var(--ink); }
+  .m-zl { font-size: 20px; font-weight: 600; fill: var(--gray); letter-spacing: .08em; }
+  .m-vx { font-size: 20px; font-weight: 600; fill: var(--gray-2); }
+  .m-vx-o { font-size: 20px; font-weight: 700; fill: var(--orange-text); }
+  .m-vp { font-size: 24px; font-weight: 700; fill: var(--orange-text); }
+  .m-sm { font-size: 20px; font-weight: 500; fill: var(--gray); }
+
+  /* 2. 노선 (세로 노선) */
+  .line { list-style: none; margin: 0; padding: 0; --c: var(--ink); }
+  .line.learn { --c: var(--orange); }
+  .st { display: grid; grid-template-columns: 96px minmax(0, 1fr); position: relative; }
+  .st .rail { position: relative; }
+  .st .rail::before {
+    content: ""; position: absolute; left: 50%; width: 10px; margin-left: -5px;
+    top: 0; bottom: 0; background: var(--c);
+  }
+  .st:first-child .rail::before { top: calc(var(--nm) * .65 + 6px); }
+  .st:last-child .rail::before { bottom: auto; height: calc(var(--nm) * .65 + 6px); }
+  .st .dot {
+    position: absolute; left: 50%; top: calc(var(--nm) * .65 + 6px);
+    width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%;
+    background: var(--bg); border: 7px solid var(--c);
+  }
+  .st.xfer .dot { width: 56px; height: 56px; margin: -28px 0 0 -28px; border: 9px solid var(--ink); }
+  .st.gate .dot { background: var(--orange); border-color: var(--orange); }
+  .st .body { padding: 6px 0 clamp(56px, 7vh, 84px) 8px; }
+  .st:last-child .body { padding-bottom: 0; }
+  .st .hd { display: flex; align-items: baseline; gap: 20px; flex-wrap: wrap; font-size: var(--nm); line-height: 1.3; }
+  .st .no { font-weight: 700; color: var(--gray); min-width: 1ch; }
+  .st h3 { font-size: var(--nm); font-weight: 800; letter-spacing: -.02em; }
+  .st.gate h3 { color: var(--orange); }
+  .st .tag { font-size: 17px; font-weight: 600; letter-spacing: .04em; color: var(--gray); border: 1px solid var(--line-1); padding: 2px 12px; line-height: 1.6; }
+  .st .tag.o { color: var(--orange-text); border-color: var(--orange); }
+  .st .one { margin-top: 10px; font-size: clamp(20px, 1.7vw, 26px); color: var(--ink); font-weight: 500; }
+  .st .note { margin-top: 10px; color: var(--ink-2); }
+  .io {
+    margin: 24px 0 0; padding-top: 20px; border-top: 1px solid var(--line-1);
+    display: grid; grid-template-columns: minmax(0, 1.25fr) auto minmax(0, 1.25fr) minmax(0, .8fr) minmax(0, .6fr);
+    gap: 12px 32px; max-width: 1180px;
+  }
+  .io div { min-width: 0; }
+  .io dt { font-size: 16px; font-weight: 600; color: var(--gray); letter-spacing: .02em; margin-bottom: 4px; }
+  .io dd { margin: 0; color: var(--ink); }
+  .io .arr { align-self: end; font-size: var(--nm); line-height: 1.2; color: var(--gray-2); }
+  .cmd { font-family: var(--mono); font-weight: 600; color: var(--ink); }
+  .none { color: var(--gray-2); }
+  .foot { margin-top: clamp(48px, 6vh, 72px); padding-top: 20px; border-top: 2px solid var(--ink); color: var(--ink-2); max-width: 46em; }
+
+  /* 3. 환승역 */
+  .x-svg { margin-bottom: clamp(48px, 6vh, 72px); }
+  .x-nm { font-size: 40px; font-weight: 800; fill: var(--ink); }
+  .x-ds { font-size: 24px; font-weight: 500; fill: var(--ink-2); }
+  .x-st { font-size: 22px; font-weight: 600; fill: var(--gray); }
+  .x-st-o { font-size: 22px; font-weight: 700; fill: var(--orange-text); }
+  .x-loop { font-size: 24px; font-weight: 600; fill: var(--ink); }
+  .x-loop-o { font-size: 24px; font-weight: 600; fill: var(--orange-text); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 4vw, 72px); }
+  .card { border-top: 10px solid var(--ink); padding-top: 28px; }
+  .card .k { font-size: 17px; font-weight: 600; letter-spacing: .06em; color: var(--gray); }
+  .card h3 { margin-top: 8px; font-size: clamp(32px, 2.8vw, 40px); font-weight: 800; letter-spacing: -.02em; line-height: 1.25; }
+  .card ul { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 12px; }
+  .card li { position: relative; padding-left: 24px; color: var(--ink-2); }
+  .card li::before { content: ""; position: absolute; left: 0; top: .8em; width: 12px; height: 2px; background: var(--gray); }
+  .vplus { color: var(--orange-text); font-weight: 700; }
+
+  /* 4. 경량 온톨로지 */
+  .zone { background: var(--zone); padding: clamp(32px, 4vw, 64px); position: relative; }
+  .zone-hd { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; flex-wrap: wrap; }
+  .zone-hd .nm { font-size: var(--nm); font-weight: 800; }
+  .zone-hd .zl { font-size: 18px; font-weight: 600; letter-spacing: .08em; color: var(--gray); }
+  .zone svg { margin: clamp(24px, 3vh, 40px) 0 clamp(40px, 5vh, 64px); }
+  .z-n { font-size: 22px; font-weight: 600; fill: var(--gray); }
+  .z-n-o { font-size: 22px; font-weight: 700; fill: var(--orange-text); }
+  .z-sb { font-size: 22px; font-weight: 700; fill: var(--ink); }
+  .lead { font-size: clamp(26px, 2.4vw, 36px); font-weight: 700; line-height: 1.4; letter-spacing: -.02em; max-width: 26em; }
+  .lead span { display: block; color: var(--ink-2); font-weight: 500; }
+  .axes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 3vw, 56px); margin-top: clamp(40px, 5vh, 64px); }
+  .axis h3 { font-size: 20px; font-weight: 700; letter-spacing: .02em; color: var(--ink); padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+  .axis .cnt { color: var(--gray); font-weight: 500; margin-left: 8px; }
+  .types { list-style: none; margin: 0; padding: 0; }
+  .types li { padding: 22px 0; border-bottom: 1px solid var(--line-1); }
+  .types .t { display: block; font-size: var(--nm); font-weight: 800; letter-spacing: -.02em; line-height: 1.3; }
+  .types .d { display: block; margin-top: 6px; color: var(--ink-2); }
+  .types .e { display: block; margin-top: 4px; font-size: 17px; color: var(--gray); }
+  .rules { list-style: none; margin: clamp(40px, 5vh, 56px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 3vw, 56px); }
+  .rules li { color: var(--ink-2); }
+  .rules b { display: block; color: var(--ink); font-size: clamp(20px, 1.6vw, 24px); margin-bottom: 6px; }
+
+  /* 5. 쌓이는 길 */
+  .path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: relative; }
+  .path::before {
+    content: ""; position: absolute; top: 22px; height: 10px; margin-top: -5px;
+    left: 10%; right: 10%; background: var(--ink);
+  }
+  .path li { position: relative; text-align: center; padding: 80px 16px 0; }
+  .path .dot {
+    position: absolute; top: 0; left: 50%; width: 44px; height: 44px; margin-left: -22px;
+    border-radius: 50%; background: var(--bg); border: 7px solid var(--ink);
+  }
+  .path li:last-child .dot { background: var(--ink); }
+  .path li.gate .dot { background: var(--orange); border-color: var(--orange); }
+  .path .t { display: block; font-size: clamp(28px, 2.6vw, 40px); font-weight: 800; letter-spacing: -.02em; line-height: 1.25; }
+  .path li.gate .t { color: var(--orange); }
+  .path .d { display: block; margin-top: 12px; color: var(--ink-2); }
+  .gates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 3vw, 56px); margin-top: clamp(72px, 9vh, 112px); }
+  .gates > div { border-top: 2px solid var(--ink); padding-top: 24px; }
+  .gates > div.gate { border-top: 6px solid var(--orange); padding-top: 20px; }
+  .gates h3 { font-size: var(--nm); font-weight: 800; letter-spacing: -.02em; }
+  .gates dl { margin: 16px 0 0; }
+  .gates dt { font-size: 16px; font-weight: 600; color: var(--gray); margin-top: 14px; }
+  .gates dd { margin: 2px 0 0; color: var(--ink-2); }
+
+  /* 6. 지표와 명령 */
+  .metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 4vw, 64px) clamp(32px, 4vw, 72px); }
+  .metrics > div { border-top: 2px solid var(--ink); padding-top: 24px; }
+  .metrics .t { font-size: clamp(32px, 3vw, 44px); font-weight: 800; letter-spacing: -.025em; line-height: 1.25; }
+  .metrics .d { margin-top: 10px; font-size: clamp(20px, 1.7vw, 26px); color: var(--ink-2); }
+  .sub-hd { font-size: clamp(28px, 2.6vw, 36px); font-weight: 800; letter-spacing: -.02em; margin: clamp(80px, 10vh, 128px) 0 clamp(32px, 4vh, 48px); }
+  .small-note { margin-top: 28px; color: var(--gray); font-size: 18px; }
+  .roles { display: grid; grid-template-columns: 2fr 3fr 1.3fr; gap: clamp(24px, 3vw, 56px); }
+  .role { border-top: 2px solid var(--ink); padding-top: 20px; }
+  .role.gate { border-top: 6px solid var(--orange); padding-top: 16px; }
+  .role h3 { font-size: 20px; font-weight: 700; color: var(--gray); letter-spacing: .04em; }
+  .role ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 32px; }
+  .role li { padding: 18px 0; border-bottom: 1px solid var(--line-1); }
+  .role .c { display: block; font-family: var(--mono); font-size: clamp(26px, 2.3vw, 34px); font-weight: 700; color: var(--ink); line-height: 1.3; }
+  .role .d { display: block; margin-top: 6px; color: var(--ink-2); font-size: clamp(17px, 1.3vw, 20px); }
+
+  /* 좁은 화면 */
+  @media (max-width: 1100px) {
+    .roles { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 960px) {
+    .io { grid-template-columns: 1fr 1fr; }
+    .io .arr { display: none; }
+    .pair, .axes, .rules, .gates, .metrics { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 900px) {
+    :root { --nav-h: 68px; }
+    .nav a { font-size: 13px; padding-top: 40px; }
+    .nav a::before { width: 16px; height: 16px; margin-left: -8px; top: 18px; }
+    .nav ol::before { top: 24px; }
+    .st { grid-template-columns: 64px minmax(0, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .nav a { font-size: 0; }
+    .path { grid-template-columns: 1fr; }
+    .path::before { top: 22px; bottom: 22px; left: 22px; right: auto; width: 10px; height: auto; margin: 0 0 0 -5px; }
+    .path li { text-align: left; padding: 0 0 40px 80px; }
+    .path li:last-child { padding-bottom: 0; }
+    .path .dot { left: 0; margin-left: 0; }
+    .io { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .nav { display: none; }
+    .sec { min-height: 0; padding: 48px 0; break-inside: avoid-page; }
+    html { scroll-behavior: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="구획 이동">
+  <ol>
+    <li><a href="#s-map">전체 노선도</a></li>
+    <li><a href="#s-run">실행선</a></li>
+    <li><a href="#s-learn">학습선</a></li>
+    <li><a href="#s-xfer">환승역</a></li>
+    <li><a href="#s-onto">경량 온톨로지</a></li>
+    <li><a href="#s-path">쌓이는 길</a></li>
+    <li><a href="#s-kpi">지표와 명령</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- 1. 첫 화면 -->
+<section class="sec hero" id="s-map">
+  <div class="wrap">
+    <h1>기준을 주면, 보고가 돌 때마다 시스템이 스스로 정교해진다</h1>
+    <p class="sub">세컨드브레인 자가피드백 시스템</p>
+
+    <svg viewBox="0 0 1400 980" role="img" aria-label="세컨드브레인 자가피드백 시스템 노선도">
+      <defs>
+        <marker id="h-ink" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="26" refX="2" refY="13" orient="auto">
+          <path d="M0,0 L20,13 L0,26 z" fill="#222222"/>
+        </marker>
+        <marker id="h-org" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="26" refX="2" refY="13" orient="auto">
+          <path d="M0,0 L20,13 L0,26 z" fill="#FF5000"/>
+        </marker>
+        <marker id="h-gry" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="22" refX="2" refY="11" orient="auto">
+          <path d="M0,0 L20,11 L0,22 z" fill="#767676"/>
+        </marker>
+        <marker id="h-thin" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="0" refY="7" orient="auto">
+          <path d="M0,0 L14,7 L0,14 z" fill="#222222"/>
+        </marker>
+      </defs>
+
+      <!-- 전 구간 적용 구역 -->
+      <rect x="40" y="40" width="1320" height="900" fill="#F7F7F5"/>
+      <text class="m-zl" x="1330" y="84" text-anchor="end">전 구간 적용</text>
+
+      <!-- 범례 -->
+      <line x1="80" y1="92" x2="124" y2="92" stroke="#222222" stroke-width="10"/>
+      <text class="m-lg" x="144" y="100"><tspan font-weight="700">실행선</tspan> · 보고서 한 건을 고친다</text>
+      <line x1="80" y1="132" x2="124" y2="132" stroke="#FF5000" stroke-width="10"/>
+      <text class="m-lg" x="144" y="140"><tspan font-weight="700">학습선</tspan> · 기준 자체를 고친다</text>
+
+      <!-- 구축 지선: 수집 → 경량 온톨로지 → 세컨드브레인 -->
+      <path d="M170 880 H432" fill="none" stroke="#767676" stroke-width="8" marker-end="url(#h-gry)"/>
+      <path d="M470 860 V724" fill="none" stroke="#767676" stroke-width="8" marker-end="url(#h-gry)"/>
+
+      <!-- 기준 제공: 세컨드브레인 → 2 -->
+      <path d="M470 654 V296" fill="none" stroke="#222222" stroke-width="3" stroke-dasharray="10 10" marker-end="url(#h-thin)"/>
+      <text class="m-sm" x="492" y="478">기준 제공</text>
+
+      <!-- 실행선 -->
+      <path d="M190 260 H432" fill="none" stroke="#222222" stroke-width="12" marker-end="url(#h-ink)"/>
+      <path d="M490 260 H732" fill="none" stroke="#222222" stroke-width="12" marker-end="url(#h-ink)"/>
+      <path d="M790 260 H1036" fill="none" stroke="#222222" stroke-width="12" marker-end="url(#h-ink)"/>
+
+      <!-- 학습선 -->
+      <path d="M1106 260 H1212 A48 48 0 0 1 1260 308 V432" fill="none" stroke="#FF5000" stroke-width="12" marker-end="url(#h-org)"/>
+      <path d="M1260 490 V632 A48 48 0 0 1 1212 680 H1118" fill="none" stroke="#FF5000" stroke-width="12" marker-end="url(#h-org)"/>
+      <path d="M1060 680 H908" fill="none" stroke="#FF5000" stroke-width="12" marker-end="url(#h-org)"/>
+      <path d="M850 680 H708" fill="none" stroke="#FF5000" stroke-width="12" marker-end="url(#h-org)"/>
+      <path d="M650 680 H514" fill="none" stroke="#FF5000" stroke-width="12" marker-end="url(#h-org)"/>
+      <text class="m-vp" x="570" y="658" text-anchor="middle">기준 v+1</text>
+
+      <!-- 역 -->
+      <circle cx="170" cy="260" r="20" fill="#FFFFFF" stroke="#222222" stroke-width="7"/>
+      <circle cx="470" cy="260" r="20" fill="#FFFFFF" stroke="#222222" stroke-width="7"/>
+      <circle cx="770" cy="260" r="20" fill="#FFFFFF" stroke="#222222" stroke-width="7"/>
+      <circle cx="1080" cy="260" r="26" fill="#FFFFFF" stroke="#222222" stroke-width="9"/>
+      <circle cx="1260" cy="470" r="20" fill="#FFFFFF" stroke="#FF5000" stroke-width="7"/>
+      <circle cx="1080" cy="680" r="20" fill="#FFFFFF" stroke="#FF5000" stroke-width="7"/>
+      <circle cx="870" cy="680" r="20" fill="#FFFFFF" stroke="#FF5000" stroke-width="7"/>
+      <circle cx="670" cy="680" r="20" fill="#FF5000" stroke="#FF5000" stroke-width="7"/>
+      <circle cx="470" cy="680" r="26" fill="#FFFFFF" stroke="#222222" stroke-width="9"/>
+      <circle cx="150" cy="880" r="20" fill="#FFFFFF" stroke="#767676" stroke-width="7"/>
+      <circle cx="470" cy="880" r="20" fill="#FFFFFF" stroke="#767676" stroke-width="7"/>
+
+      <!-- 실행선 라벨 (위) -->
+      <text class="m-nm" x="170" y="190" text-anchor="middle">1 초안 입력</text>
+      <text class="m-ds" x="170" y="222" text-anchor="middle">직원이 보고서 초안을 넣는다</text>
+      <text class="m-nm" x="470" y="190" text-anchor="middle">2 자가 평가</text>
+      <text class="m-ds" x="470" y="222" text-anchor="middle">기준에 비춰 점검한다</text>
+      <text class="m-nm" x="770" y="190" text-anchor="middle">3 1장 리포트</text>
+      <text class="m-ds" x="770" y="222" text-anchor="middle">판정과 수정할 것 3건</text>
+      <text class="m-nm" x="1080" y="190" text-anchor="middle">4 1차 보고</text>
+      <text class="m-ds" x="1080" y="222" text-anchor="middle">고쳐서 보고한다</text>
+
+      <!-- 학습선 라벨 -->
+      <text class="m-nm" x="1222" y="466" text-anchor="end">5 실측 기록</text>
+      <text class="m-ds" x="1222" y="498" text-anchor="end">실제 피드백과 사전 평가를 대조한다</text>
+      <text class="m-nm" x="1080" y="744" text-anchor="middle">6 패턴 축적</text>
+      <text class="m-ds" x="1080" y="776" text-anchor="middle">반복되는 차이를 모은다</text>
+      <text class="m-nm" x="870" y="618" text-anchor="middle">7 기준 제안</text>
+      <text class="m-ds" x="870" y="650" text-anchor="middle">근거를 붙여 변경안을 올린다</text>
+      <text class="m-nm-o" x="670" y="744" text-anchor="middle">8 최종 승인</text>
+      <text class="m-ds" x="670" y="776" text-anchor="middle">주 1회, 승인한 것만 기준이 된다</text>
+
+      <!-- 세컨드브레인 -->
+      <text class="m-tg" x="424" y="648" text-anchor="end">기준</text>
+      <text class="m-nm" x="424" y="690" text-anchor="end">세컨드브레인</text>
+      <text class="m-ds" x="424" y="722" text-anchor="end">평가기준 · 내부기준</text>
+      <text class="m-vx" x="314" y="758" text-anchor="middle">v1</text>
+      <text class="m-vx" x="354" y="758" text-anchor="middle">v2</text>
+      <text class="m-vx-o" x="394" y="758" text-anchor="middle">v3</text>
+      <line x1="300" y1="772" x2="328" y2="772" stroke="#D9D9D9" stroke-width="4"/>
+      <line x1="340" y1="772" x2="368" y2="772" stroke="#A3A3A3" stroke-width="4"/>
+      <line x1="380" y1="772" x2="408" y2="772" stroke="#FF5000" stroke-width="4"/>
+
+      <!-- 수집 -->
+      <text class="m-tg" x="130" y="786">원천</text>
+      <text class="m-nm" x="130" y="816">수집</text>
+      <text class="m-ds" x="130" y="846">인터뷰 · 기존 문서 · 과거 피드백</text>
+
+      <!-- 경량 온톨로지 -->
+      <text class="m-tg" x="504" y="852">전역규칙</text>
+      <text class="m-nm" x="504" y="888">경량 온톨로지</text>
+      <text class="m-ds" x="504" y="920">용어 · 타입 · 표기를 하나로 (비즈니스 인텔리전스 × 브랜드 아이덴티티)</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 2-1. 실행선 -->
+<section class="sec" id="s-run">
+  <div class="wrap">
+    <header class="sh">
+      <span class="sh-no">02 · 노선 하나</span>
+      <h2>실행선: 보고서 한 건을 고친다</h2>
+      <p class="sh-sub">직원은 초안을 넣고 명령을 한 번 실행한다. 시스템은 사전 점검까지만 한다.</p>
+      <p class="legend"><i></i>실행 루프</p>
+    </header>
+
+    <ol class="line">
+      <li class="st">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="hd"><span class="no">1</span><h3>초안 입력</h3></div>
+          <p class="one">직원이 보고서 초안을 넣는다</p>
+          <dl class="io">
+            <div><dt>들어가는 것</dt><dd>보고서 초안</dd></div>
+            <div class="arr" aria-hidden="true">→</div>
+            <div><dt>나오는 것</dt><dd>정리된 초안</dd></div>
+            <div><dt>맡는 쪽</dt><dd>직원</dd></div>
+            <div><dt>명령</dt><dd class="cmd">/check</dd></div>
+          </dl>
+          <p class="note">입력한 보고서는 그대로 사례로 쌓인다.</p>
+        </div>
+      </li>
+      <li class="st">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="hd"><span class="no">2</span><h3>자가 평가</h3></div>
+          <p class="one">기준에 비춰 점검한다</p>
+          <dl class="io">
+            <div><dt>들어가는 것</dt><dd>초안, 기준, 비슷한 과거 사례</dd></div>
+            <div class="arr" aria-hidden="true">→</div>
+            <div><dt>나오는 것</dt><dd>원문 인용과 기준 번호가 붙은 지적</dd></div>
+            <div><dt>맡는 쪽</dt><dd>평가 에이전트</dd></div>
+            <div><dt>명령</dt><dd class="cmd">/check</dd></div>
+          </dl>
+          <p class="note">원문 인용이나 기준 번호가 없는 지적은 버린다.</p>
+        </div>
+      </li>
+      <li class="st">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="hd"><span class="no">3</span><h3>1장 리포트</h3></div>
+          <p class="one">판정과 수정할 것 3건</p>
+          <dl class="io">
+            <div><dt>들어가는 것</dt><dd>지적</dd></div>
+            <div class="arr" aria-hidden="true">→</div>
+            <div><dt>나오는 것</dt><dd>판정 한 줄, 고칠 것 3건</dd></div>
+            <div><dt>맡는 쪽</dt><dd>평가 에이전트</dd></div>
+            <div><dt>명령</dt><dd class="cmd">/check</dd></div>
+          </dl>
+          <p class="note">고칠 것은 영향이 큰 순서로 3건까지만 낸다.</p>
+        </div>
+      </li>
+      <li class="st xfer">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="hd"><span class="no">4</span><h3>1차 보고</h3><span class="tag">환승 · 학습선으로</span></div>
+          <p class="one">고쳐서 보고한다</p>
+          <dl class="io">
+            <div><dt>들어가는 것</dt><dd>고친 보고서</dd></div>
+            <div class="arr" aria-hidden="true">→</div>
+            <div><dt>나오는 것</dt><dd>실제 피드백</dd></div>
+            <div><dt>맡는 쪽</dt><dd>직원</dd></div>
+            <div><dt>명령</dt><dd class="none">없음</dd></div>
+          </dl>
+          <p class="note">보고와 판정은 지금처럼 사람이 한다.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- 2-2. 학습선 -->
+<section class="sec" id="s-learn">
+  <div class="wrap">
+    <header class="sh">
+      <span class="sh-no">02 · 노선 둘</span>
+      <h2>학습선: 기준 자체를 고친다</h2>
+      <p class="sh-sub">실제 보고에서 받은 피드백을 사전 평가와 나란히 적는다. 한 번 나온 차이로는 아무것도 바꾸지 않는다.</p>
+      <p class="legend learn"><i></i>학습 루프</p>
+    </header>
+
+    <ol class="line learn">
+      <li class="st xfer">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="hd"><span class="no">4</span><h3>1차 보고</h3><span class="tag">환승 · 실행선에서</span></div>
+          <p class="one">실제 피드백이 학습선으로 넘어간다</p>
+        </div>
+      </li>
+      <li class="st">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="hd"><span class="no">5</span><h3>실측 기록</h3></div>
+          <p class="one">실제 피드백과 사전 평가를 대조한다</p>
+          <dl class="io">
+            <div><dt>들어가는 것</dt><dd>실제 피드백</dd></div>
+            <div class="arr" aria-hidden="true">→</div>
+            <div><dt>나오는 것</dt><dd>사전 평가와 나란히 적은 대조 기록</dd></div>
+            <div><dt>맡는 쪽</dt><dd>기록 에이전트</dd></div>
+            <div><dt>명령</dt><dd class="cmd">/record</dd></div>
+          </dl>
+          <p class="note">시스템이 놓친 것과 잘못 짚은 것이 여기서 드러난다.</p>
+        </div>
+      </li>
+      <li class="st">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="hd"><span class="no">6</span><h3>패턴 축적</h3></div>
+          <p class="one">반복되는 차이를 모은다</p>
+          <dl class="io">
+            <div><dt>들어가는 것</dt><dd>대조 기록</dd></div>
+            <div class="arr" aria-hidden="true">→</div>
+            <div><dt>나오는 것</dt><dd>반복되는 차이와 횟수</dd></div>
+            <div><dt>맡는 쪽</dt><dd>분석 에이전트</dd></div>
+            <div><dt>명령</dt><dd class="cmd">/propose</dd></div>
+          </dl>
+          <p class="note">서로 다른 보고에서 같은 차이가 반복될 때만 패턴으로 올린다.</p>
+        </div>
+      </li>
+      <li class="st">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="hd"><span class="no">7</span><h3>기준 제안</h3></div>
+          <p class="one">근거를 붙여 변경안을 올린다</p>
+          <dl class="io">
+            <div><dt>들어가는 것</dt><dd>패턴</dd></div>
+            <div class="arr" aria-hidden="true">→</div>
+            <div><dt>나오는 것</dt><dd>변경안 카드(바꿀 내용, 근거 사례, 영향)</dd></div>
+            <div><dt>맡는 쪽</dt><dd>제안 에이전트</dd></div>
+            <div><dt>명령</dt><dd class="cmd">/propose</dd></div>
+          </dl>
+          <p class="note">근거 로그 링크가 없으면 올리지 않는다.</p>
+        </div>
+      </li>
+      <li class="st gate">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="hd"><span class="no">8</span><h3>최종 승인</h3></div>
+          <p class="one">주 1회, 승인한 것만 기준이 된다</p>
+          <dl class="io">
+            <div><dt>들어가는 것</dt><dd>변경안 카드</dd></div>
+            <div class="arr" aria-hidden="true">→</div>
+            <div><dt>나오는 것</dt><dd>기준 새 버전, 반려 기록</dd></div>
+            <div><dt>맡는 쪽</dt><dd>승인권자</dd></div>
+            <div><dt>명령</dt><dd class="cmd">/approve</dd></div>
+          </dl>
+          <p class="note">기준을 바꾸는 문은 이것 하나다.</p>
+        </div>
+      </li>
+      <li class="st xfer">
+        <div class="rail"><span class="dot"></span></div>
+        <div class="body">
+          <div class="hd"><span class="no"></span><h3>세컨드브레인</h3><span class="tag o">기준 v+1</span></div>
+          <p class="one">평가기준 · 내부기준</p>
+          <p class="note">버전을 올리고 이전 버전은 남겨 둔다. 2 자가 평가는 이 기준을 읽는다.</p>
+        </div>
+      </li>
+    </ol>
+
+    <p class="foot">에이전트는 기준 파일을 읽기만 한다. 기준 파일에 쓰는 것은 8번뿐이다.</p>
+  </div>
+</section>
+
+<!-- 3. 환승역 -->
+<section class="sec" id="s-xfer">
+  <div class="wrap">
+    <header class="sh">
+      <span class="sh-no">03 · 환승역</span>
+      <h2>두 고리는 1차 보고에서 만나고, 세컨드브레인에서 다시 만난다</h2>
+    </header>
+
+    <svg class="x-svg" viewBox="0 0 1400 660" role="img" aria-label="두 환승역: 1차 보고와 세컨드브레인">
+      <defs>
+        <marker id="x-ink" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="26" refX="2" refY="13" orient="auto">
+          <path d="M0,0 L20,13 L0,26 z" fill="#222222"/>
+        </marker>
+        <marker id="x-org" markerUnits="userSpaceOnUse" markerWidth="20" markerHeight="26" refX="2" refY="13" orient="auto">
+          <path d="M0,0 L20,13 L0,26 z" fill="#FF5000"/>
+        </marker>
+        <marker id="x-thin" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="0" refY="7" orient="auto">
+          <path d="M0,0 L14,7 L0,14 z" fill="#222222"/>
+        </marker>
+      </defs>
+
+      <!-- 실행선 -->
+      <path d="M176 200 H366" fill="none" stroke="#222222" stroke-width="12" marker-end="url(#x-ink)"/>
+      <path d="M416 200 H606" fill="none" stroke="#222222" stroke-width="12" marker-end="url(#x-ink)"/>
+      <path d="M656 200 H938" fill="none" stroke="#222222" stroke-width="12" marker-end="url(#x-ink)"/>
+
+      <!-- 학습선 -->
+      <path d="M1044 200 H1180 A60 60 0 0 1 1240 260 V306" fill="none" stroke="#FF5000" stroke-width="12" marker-end="url(#x-org)"/>
+      <path d="M1240 356 V420 A60 60 0 0 1 1180 480 H1074" fill="none" stroke="#FF5000" stroke-width="12" marker-end="url(#x-org)"/>
+      <path d="M1024 480 H894" fill="none" stroke="#FF5000" stroke-width="12" marker-end="url(#x-org)"/>
+      <path d="M844 480 H714" fill="none" stroke="#FF5000" stroke-width="12" marker-end="url(#x-org)"/>
+      <path d="M664 480 H462" fill="none" stroke="#FF5000" stroke-width="12" marker-end="url(#x-org)"/>
+      <text class="m-vp" x="554" y="462" text-anchor="middle">기준 v+1</text>
+
+      <!-- 기준 제공 -->
+      <path d="M400 436 V238" fill="none" stroke="#222222" stroke-width="3" stroke-dasharray="10 10" marker-end="url(#x-thin)"/>
+
+      <!-- 고리 이름 (안쪽) -->
+      <text class="x-loop" x="440" y="262">실행 루프 · 보고서 한 건을 고친다</text>
+      <text class="x-loop-o" x="440" y="400">학습 루프 · 기준 자체를 고친다</text>
+
+      <!-- 작은 역 -->
+      <circle cx="160" cy="200" r="16" fill="#FFFFFF" stroke="#222222" stroke-width="6"/>
+      <circle cx="400" cy="200" r="16" fill="#FFFFFF" stroke="#222222" stroke-width="6"/>
+      <circle cx="640" cy="200" r="16" fill="#FFFFFF" stroke="#222222" stroke-width="6"/>
+      <circle cx="1240" cy="340" r="16" fill="#FFFFFF" stroke="#FF5000" stroke-width="6"/>
+      <circle cx="1040" cy="480" r="16" fill="#FFFFFF" stroke="#FF5000" stroke-width="6"/>
+      <circle cx="860" cy="480" r="16" fill="#FFFFFF" stroke="#FF5000" stroke-width="6"/>
+      <circle cx="680" cy="480" r="16" fill="#FF5000" stroke="#FF5000" stroke-width="6"/>
+
+      <text class="x-st" x="160" y="160" text-anchor="middle">1 초안 입력</text>
+      <text class="x-st" x="400" y="160" text-anchor="middle">2 자가 평가</text>
+      <text class="x-st" x="640" y="160" text-anchor="middle">3 1장 리포트</text>
+      <text class="x-st" x="1210" y="348" text-anchor="end">5 실측 기록</text>
+      <text class="x-st" x="1040" y="534" text-anchor="middle">6 패턴 축적</text>
+      <text class="x-st" x="860" y="534" text-anchor="middle">7 기준 제안</text>
+      <text class="x-st-o" x="680" y="534" text-anchor="middle">8 최종 승인</text>
+
+      <!-- 환승역 두 곳 -->
+      <circle cx="1000" cy="200" r="44" fill="#FFFFFF" stroke="#222222" stroke-width="12"/>
+      <circle cx="400" cy="480" r="44" fill="#FFFFFF" stroke="#222222" stroke-width="12"/>
+
+      <text class="x-nm" x="1000" y="70" text-anchor="middle">4 1차 보고</text>
+      <text class="x-ds" x="1000" y="112" text-anchor="middle">실행선에서 학습선으로</text>
+      <text class="x-nm" x="400" y="596" text-anchor="middle">세컨드브레인</text>
+      <text class="x-ds" x="400" y="636" text-anchor="middle">학습선에서 실행선으로</text>
+    </svg>
+
+    <div class="pair">
+      <article class="card">
+        <span class="k">환승역 하나 · 실행선 → 학습선</span>
+        <h3>4 1차 보고</h3>
+        <ul>
+          <li>실행선의 마지막 역이자 학습선의 첫 역이다.</li>
+          <li>고친 보고서로 보고하고, 받은 실제 피드백이 학습선으로 넘어간다.</li>
+          <li>보고와 판정은 사람이 한다. 시스템은 사전 점검까지만 한다.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <span class="k">환승역 둘 · 학습선 → 실행선</span>
+        <h3>세컨드브레인</h3>
+        <ul>
+          <li>학습선이 돌아오는 역이자 2 자가 평가에 기준을 대는 역이다.</li>
+          <li>승인된 변경안만 <span class="vplus">기준 v+1</span>이 된다.</li>
+          <li>이전 버전은 남겨 두어 언제든 되돌릴 수 있다.</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 경량 온톨로지 -->
+<section class="sec" id="s-onto">
+  <div class="wrap">
+    <header class="sh">
+      <span class="sh-no">04 · 전 구간 적용</span>
+      <h2>경량 온톨로지: 모든 에이전트가 따르는 용어와 표기의 약속</h2>
+    </header>
+
+    <div class="zone">
+      <div class="zone-hd">
+        <span class="nm">경량 온톨로지</span>
+        <span class="zl">전 구간 적용</span>
+      </div>
+
+      <svg viewBox="0 0 1400 290" role="img" aria-label="경량 온톨로지가 노선 전체에 적용된다">
+        <defs>
+          <marker id="z-ink" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="18" refX="2" refY="9" orient="auto">
+            <path d="M0,0 L14,9 L0,18 z" fill="#222222"/>
+          </marker>
+          <marker id="z-org" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="18" refX="2" refY="9" orient="auto">
+            <path d="M0,0 L14,9 L0,18 z" fill="#FF5000"/>
+          </marker>
+          <marker id="z-thin" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="0" refY="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#222222"/>
+          </marker>
+        </defs>
+        <path d="M174 90 H374" fill="none" stroke="#222222" stroke-width="8" marker-end="url(#z-ink)"/>
+        <path d="M414 90 H614" fill="none" stroke="#222222" stroke-width="8" marker-end="url(#z-ink)"/>
+        <path d="M654 90 H866" fill="none" stroke="#222222" stroke-width="8" marker-end="url(#z-ink)"/>
+        <path d="M922 90 H1160 A40 40 0 0 1 1200 130 V160 A40 40 0 0 1 1160 200 H1126" fill="none" stroke="#FF5000" stroke-width="8" marker-end="url(#z-org)"/>
+        <path d="M1086 200 H966" fill="none" stroke="#FF5000" stroke-width="8" marker-end="url(#z-org)"/>
+        <path d="M926 200 H806" fill="none" stroke="#FF5000" stroke-width="8" marker-end="url(#z-org)"/>
+        <path d="M766 200 H646" fill="none" stroke="#FF5000" stroke-width="8" marker-end="url(#z-org)"/>
+        <path d="M606 200 H434" fill="none" stroke="#FF5000" stroke-width="8" marker-end="url(#z-org)"/>
+        <path d="M400 178 V118" fill="none" stroke="#222222" stroke-width="2" stroke-dasharray="6 6" marker-end="url(#z-thin)"/>
+
+        <circle cx="160" cy="90" r="14" fill="#FFFFFF" stroke="#222222" stroke-width="5"/>
+        <circle cx="400" cy="90" r="14" fill="#FFFFFF" stroke="#222222" stroke-width="5"/>
+        <circle cx="640" cy="90" r="14" fill="#FFFFFF" stroke="#222222" stroke-width="5"/>
+        <circle cx="900" cy="90" r="22" fill="#FFFFFF" stroke="#222222" stroke-width="7"/>
+        <circle cx="1100" cy="200" r="14" fill="#FFFFFF" stroke="#FF5000" stroke-width="5"/>
+        <circle cx="940" cy="200" r="14" fill="#FFFFFF" stroke="#FF5000" stroke-width="5"/>
+        <circle cx="780" cy="200" r="14" fill="#FFFFFF" stroke="#FF5000" stroke-width="5"/>
+        <circle cx="620" cy="200" r="14" fill="#FF5000" stroke="#FF5000" stroke-width="5"/>
+        <circle cx="400" cy="200" r="22" fill="#FFFFFF" stroke="#222222" stroke-width="7"/>
+
+        <text class="z-n" x="160" y="52" text-anchor="middle">1</text>
+        <text class="z-n" x="400" y="52" text-anchor="middle">2</text>
+        <text class="z-n" x="640" y="52" text-anchor="middle">3</text>
+        <text class="z-n" x="900" y="52" text-anchor="middle">4</text>
+        <text class="z-n" x="1100" y="252" text-anchor="middle">5</text>
+        <text class="z-n" x="940" y="252" text-anchor="middle">6</text>
+        <text class="z-n" x="780" y="252" text-anchor="middle">7</text>
+        <text class="z-n-o" x="620" y="252" text-anchor="middle">8</text>
+        <text class="z-sb" x="400" y="256" text-anchor="middle">세컨드브레인</text>
+      </svg>
+
+      <p class="lead">무엇이 있고 어떻게 부르는지만 정한다.<span>무엇이 좋은지는 세컨드브레인이 정한다.</span></p>
+
+      <div class="axes">
+        <div class="axis">
+          <h3>비즈니스 인텔리전스<span class="cnt">2</span></h3>
+          <ul class="types">
+            <li><span class="t">지표</span><span class="d">정의, 산식, 단위, 집계 주기</span><span class="e">예: 매출총이익률</span></li>
+            <li><span class="t">사업 대상</span><span class="d">지표가 재는 대상</span><span class="e">예: 고객, 프로젝트</span></li>
+          </ul>
+        </div>
+        <div class="axis">
+          <h3>공통<span class="cnt">2</span></h3>
+          <ul class="types">
+            <li><span class="t">용어</span><span class="d">정식 명칭과 동의어</span><span class="e">정식어는 하나, 나머지는 대체어 또는 금지어</span></li>
+            <li><span class="t">규칙</span><span class="d">금지어, 필수 표기</span><span class="e">예: 흰 바탕의 작은 오렌지 글씨는 #D04000</span></li>
+          </ul>
+        </div>
+        <div class="axis">
+          <h3>브랜드 아이덴티티<span class="cnt">3</span></h3>
+          <ul class="types">
+            <li><span class="t">표기</span><span class="d">단위, 소수점, 통화 표기</span><span class="e">예: 억 원 단위, 소수 첫째 자리</span></li>
+            <li><span class="t">톤</span><span class="d">문체 규칙과 좋은 예, 나쁜 예</span><span class="e">예: 보고서 문체, 대외 문체</span></li>
+            <li><span class="t">시각 토큰</span><span class="d">색, 서체</span><span class="e">예: 키컬러 #FF5000</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <ul class="rules">
+        <li><b>타입은 일곱 개, 늘리지 않는다.</b>새 타입이 필요해 보이면 만들지 않고 변경안으로 올린다.</li>
+        <li><b>두 축은 두 곳에서 만난다.</b>지표와 표기, 용어와 규칙. 같은 숫자는 항상 같은 단위로, 정식어는 하나만 쓴다.</li>
+        <li><b>값 판단은 넣지 않는다.</b>"얼마 이상이어야 좋다"는 온톨로지가 아니라 세컨드브레인에 적는다.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 5. 쌓이는 길 -->
+<section class="sec" id="s-path">
+  <div class="wrap">
+    <header class="sh">
+      <span class="sh-no">05 · 누적</span>
+      <h2>쌓이는 길은 하나, 문도 하나</h2>
+      <p class="sh-sub">시스템은 스스로 쌓지만, 기준을 스스로 바꾸지는 못한다.</p>
+    </header>
+
+    <ol class="path">
+      <li><span class="dot"></span><span class="t">로그</span><span class="d">평가와 실제 피드백을 그대로 적는다. 지우지 않는다</span></li>
+      <li><span class="dot"></span><span class="t">패턴</span><span class="d">서로 다른 보고에서 같은 차이가 반복될 때만 올린다</span></li>
+      <li><span class="dot"></span><span class="t">제안</span><span class="d">바꿀 내용 한 줄, 근거 사례, 바꿨을 때의 영향</span></li>
+      <li class="gate"><span class="dot"></span><span class="t">승인</span><span class="d">주 1회 묶어서 승인, 반려, 보류</span></li>
+      <li><span class="dot"></span><span class="t">기준</span><span class="d">버전을 올리고 이전 버전은 남겨 둔다</span></li>
+    </ol>
+
+    <div class="gates">
+      <div>
+        <h3>자동</h3>
+        <dl>
+          <dt>대상</dt><dd>보고서 사례, 평가 로그, 대조 기록, 패턴 횟수</dd>
+          <dt>방식</dt><dd>명령을 돌릴 때마다 기록</dd>
+        </dl>
+      </div>
+      <div>
+        <h3>사후 확인</h3>
+        <dl>
+          <dt>대상</dt><dd>용어 추가, 모범 사례 등록</dd>
+          <dt>방식</dt><dd>먼저 반영하고 주간 목록으로 확인</dd>
+        </dl>
+      </div>
+      <div class="gate">
+        <h3>사전 승인</h3>
+        <dl>
+          <dt>대상</dt><dd>기준 문구, 가중치, 문턱값</dd>
+          <dt>방식</dt><dd>변경안 카드로 올리고 승인된 것만 반영</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. 지표와 명령 -->
+<section class="sec" id="s-kpi">
+  <div class="wrap">
+    <header class="sh">
+      <span class="sh-no">06 · 지표와 명령</span>
+      <h2>돌릴수록 좋아지는지 보는 지표</h2>
+    </header>
+
+    <div class="metrics">
+      <div><p class="t">판정 일치율</p><p class="d">사전 판정과 실제 판정이 같았던 비율</p></div>
+      <div><p class="t">사전 포착률</p><p class="d">실제로 지적된 것 중 미리 짚은 비율</p></div>
+      <div><p class="t">1차 보고 통과율</p><p class="d">재작성 없이 넘어간 비율</p></div>
+      <div><p class="t">제안 채택률</p><p class="d">올린 변경안 중 승인된 비율</p></div>
+    </div>
+    <p class="small-note">목표 수치는 도입 전 지금 수준을 먼저 잰 뒤에 정한다.</p>
+
+    <h2 class="sub-hd">명령 여섯 개</h2>
+    <div class="roles">
+      <div class="role">
+        <h3>직원</h3>
+        <ul>
+          <li><span class="c">/check</span><span class="d">초안을 점검하고 1장 리포트를 만든다</span></li>
+          <li><span class="c">/record</span><span class="d">실제로 받은 피드백을 적는다</span></li>
+        </ul>
+      </div>
+      <div class="role">
+        <h3>관리자</h3>
+        <ul>
+          <li><span class="c">/ingest</span><span class="d">인터뷰와 문서를 읽어 위키와 기준 초안을 만든다</span></li>
+          <li><span class="c">/propose</span><span class="d">반복되는 차이를 모아 변경안을 만든다</span></li>
+          <li><span class="c">/lint</span><span class="d">끊어진 링크, 미등록 용어, 낡은 페이지를 찾는다</span></li>
+        </ul>
+      </div>
+      <div class="role gate">
+        <h3>승인권자</h3>
+        <ul>
+          <li><span class="c">/approve</span><span class="d">변경안을 승인하거나 반려하고 버전을 올린다</span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="small-note">직원이 쓰는 명령은 두 개뿐이다.</p>
+  </div>
+</section>
+
+</main>
+
+<script>
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+    var map = {};
+    links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+    function mark(id) {
+      links.forEach(function (a) { a.removeAttribute('aria-current'); });
+      if (map[id]) map[id].setAttribute('aria-current', 'true');
+    }
+    mark('s-map');
+    if (!('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) mark(e.target.id); });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    Object.keys(map).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+  })();
+</script>
+</body>
+</html>
